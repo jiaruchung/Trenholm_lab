@@ -39,11 +39,123 @@ plt.title('M10-c2')
 
 
 #for grant 
-pos=pd.read_excel(r'F:\training_videos\012020\M1-c.xlsx')
+#import os
+
+#def Load():
+#    for filename in os.listdir(r"F:\training_videos\Males-c"):
+#        pos = pd.read_excel(os.path.join(r'F:\training_videos\Males-c', filename), 'r')
+#Load()
+
+
+    
+
+
+
+
+'''
+path = r"F:\training_videos\Males-c"
+
+files = []
+# r=root, d=directories, f = files
+for r, d, f in os.walk(path):
+    for file in f:
+        if '.xlsx' in file:
+            files.append(os.path.join(r, file))
+
+for f in files:
+    print(f)
+    pos=pd.read_excel(r"F:\training_videos\Males-c\str[i]+ str(.xlsx)")
+'''
+#pos=pd.read_excel(r'F:\training_videos\122519\M2-c.xlsx')
+
+
+
+import os
+import glob
+
+
+
+
+files=glob.glob(os.path.join(r"F:\training_videos\Males-c",'*.xlsx'))
+for file in files:
+    pos=pd.read_excel(file)
+
+    dx = array(pos['X'][1:])-array(pos['X'][:-1]); dx=np.concatenate(([0],dx))
+    dy = array(pos['Y'][1:])-array(pos['Y'][:-1]); dy=np.concatenate(([0],dy))
+    
+    for i,x in enumerate(dx):
+        if abs(dx[i])>50: #Tracking noise threshold
+            pos['X'][i]=pos['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+            pos['Y'][i]=NaN
+    #    if abs(dy[i])>100:
+#        pos['X'][i]=NaN
+#        pos['Y'][i]=pos['Y'][i-1]
+
+pos.to_excel(file, index = False)
+
+
+
+
+
+
+
+
+
 fig,az=plt.subplots()
 plot(pos['X'],pos['Y'])
 xmin=min(pos['X']); xmax=max(pos['X'])
 ymin=min(pos['Y']); ymax=max(pos['Y'])
+az.invert_yaxis()
+        
+xaxis=plot([xmin, xmin],[ymin, ymax],color='k')
+yaxis=plot([xmin, xmax],[ymax, ymax],color='k')
+xaxis1=plot([xmax, xmax],[ymin, ymax],color='k')
+yaxis1=plot([xmin, xmax],[ymin, ymin],color='k')
+
+plt.gca().set_aspect('equal', adjustable='box')
+plt.draw()
+plt.axis('off')
+
+plt.savefig('gnatM3-c.eps',dpi=300)
+
+
+#clean_pos=pd.DataFrame(index=np.arange(len(pos)),columns=['X','Y'])
+#for i,x in enumerate(dx):
+#    if abs(dx[i])>25: #Tracking noise threshold
+#        clean_pos.iloc[i,0]=pos['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+#        clean_pos.iloc[i,1]=pos['Y'][i-1]
+#    else:
+#        clean_pos.iloc[i,0]=pos['X'][i]
+#        clean_pos.iloc[i,1]=pos['Y'][i]
+#fig,az=plt.subplots()
+#plot(clean_pos['X'],clean_pos['Y'])
+#figure();plot(pos['X'],pos['Y'])
+
+
+
+
+#############################################################################
+#Hist
+############################################################################
+val=np.arange(min(dx), max(dx) + 1, 1)
+figure();gca().set_xlim(0,100)
+hist(abs(dx),bins=val)
+
+############################################################################
+name of files=dir()
+#out-of-scale plot
+for i in name of files:
+pos=pd.read_excel(r'F:\training_videos\022020\'+str[i]+ str(.xlsx))
+idx=pos['X']<475
+idx2=pos['Y'] >46
+#xmin=min(idx); xmax=max(idx)
+#ymin=min(idx2); ymax=max(idx2)
+pos_new=pos[idx]
+pos_new=pos_new[idx2]
+fig,az=plt.subplots()
+plot(pos_new['X'],pos_new['Y'])
+xmin=min(pos_new['X']); xmax=max(pos_new['X'])
+ymin=min(pos_new['Y']); ymax=max(pos_new['Y'])
 az.invert_yaxis()
 #plt.gca().set_aspe
 xaxis=plot([xmin, xmin],[ymin, ymax],color='k')
@@ -53,38 +165,11 @@ yaxis1=plot([xmin, xmax],[ymin, ymin],color='k')
 plt.gca().set_aspect('equal', adjustable='box')
 plt.draw()
 plt.axis('off')
-
-rotate = az.rotate(45)
-rotate.show()
-
-
-
-
-#out-of-scale plot
-pos=pd.read_excel(r'F:\training_videos\021220\f6-c.xlsx')
-idx=pos['X']<475
-idx2=pos['Y'] >46
-#xmin=min(idx); xmax=max(idx)
-#ymin=min(idx2); ymax=max(idx2)
-pos_new=pos[idx]
-pos_new=pos_new[idx2]
-fig,az=plt.subplots()
-plot(pos_new['X'],pos_new['Y'])
-#xaxis=plot([(xmin+xmax)/2,(xmin+xmax)/2],[ymin,ymax],color='k')
-#yaxis=plot([xmin,xmax],[(ymax+ymin)/2,(ymax+ymin)/2],color='k')
-az.invert_yaxis()
-plt.title('F6-c2') 
-#Define bounds
-#xmin= ;xmax= 
-#ymin= ;ymax=
-#midline 
-
-
-
+plt.savefig('M13-m1.eps',dpi=300)
 
 
 def occu_heatmap(pos):  
-    bins=28 
+    bins=10 
     xpos=pos['X']
     ypos=pos['Y']
     xbins = np.linspace(xpos.min(), xpos.max()+1e-6, bins+10)
@@ -97,10 +182,15 @@ def occu_heatmap(pos):
     cbar=fig.colorbar(q,orientation='vertical')
     cticks=cbar.ax.get_xticks()
     cbar.set_ticks([])
-    ax.invert_yaxis()
+    #ax.invert_yaxis()
     return fig
 
+
+
 occu_heatmap(pos)
+
+
+
 ##############################################################################
 
 #Define position as an array
@@ -289,34 +379,44 @@ def occu_heatmap(pos):
     return fig
 
 #day 1 plot
-time_data = pd.read_csv(r'C:\Users\labuser\Documents\Python_EC\Total time spent_stats_males.csv')
+time_data = pd.read_csv('Total time spent_stats_blind.csv')
 dat=time_data[['computer','mouse']]
 means=pd.DataFrame(index=dat.columns, columns=np.arange(1))
 means.loc['computer',0]= dat['computer'].mean()
 means.loc['mouse',0]=dat['mouse'].mean()
-
-#day 2 plot 
-time_data = pd.read_csv(r'C:\Users\labuser\Documents\Python_EC\Total time spent_stats_males.csv')
-dat=time_data[['computer day 2','mouse day 2']]
-means=pd.DataFrame(index=dat.columns, columns=np.arange(1))
-means.loc['computer day 2',0]= dat['computer day 2'].mean()
-means.loc['mouse day 2',0]=dat['mouse day 2'].mean()
-
-
 fig=figure()
 plot(dat.T, color='grey'); plot(means,color='black', linewidth=3)
 #plt.title('More time spent with 3D computer object than mouse object') 
 #plt.xlabel('Categories') 
-plt.ylabel('Time spent with object(s) ') 
+plt.ylabel('Time spent with object (s) ') 
 #plot([0,1],[150,150], color = 'k')
-#plt.text(0.45, 155, '*p=5.68e-08', verticalalignment='center')
+#plt.text(0.45, 155, '*p=0.033', verticalalignment='center')
 
 plt.rcParams['axes.spines.right'] = False
 plt.rcParams['axes.spines.top'] = False
-plt.savefig('males day 2.eps',dpi=300)
+plt.savefig('blind.eps',dpi=300)
+
+
+#day 2 plot 
+time_data = pd.read_csv(r'C:\Users\labuser\Documents\Python_EC\Total time spent_stats_reversed_obj.csv')
+dat=time_data[['computer day 2','mouse day 2']]
+means=pd.DataFrame(index=dat.columns, columns=np.arange(1))
+means.loc['computer day 2',0]= dat['computer day 2'].mean()
+means.loc['mouse day 2',0]=dat['mouse day 2'].mean()
+fig=figure()
+plot(dat.T, color='grey'); plot(means,color='black', linewidth=3)
+#plt.title('More time spent with 3D computer object than mouse object') 
+#plt.xlabel('Categories') 
+plt.ylabel('Time spent with object (s) ') 
+plot([0,1],[150,150], color = 'k')
+#plt.text(0.45, 155, '*p=0.033', verticalalignment='center')
+
+plt.rcParams['axes.spines.right'] = False
+plt.rcParams['axes.spines.top'] = False
+plt.savefig('reversed_obj.eps',dpi=300)
 
 #stats
-time_data = pd.read_csv('Total time spent_stats_females.csv')
+time_data = pd.read_csv('Total time spent_stats_blind.csv')
 from numpy import ndarray
 computer=time_data['computer']
 mouse=time_data['mouse']
