@@ -23,19 +23,44 @@ import seaborn as sns
 sns.set(style="ticks", color_codes=True)
 
 ###############################################################################
-pos=pd.read_excel(r'F:\training_videos\012420_2\M10-c.xlsx')
-fig,az=plt.subplots()
-plot(pos['X'],pos['Y'])
-xmin=min(pos['X']); xmax=max(pos['X'])
-ymin=min(pos['Y']); ymax=max(pos['Y'])
-az.invert_yaxis()
-xaxis=plot([(xmin+xmax)/2,(xmin+xmax)/2],[ymin,ymax],color='k')
-yaxis=plot([xmin,xmax],[(ymax+ymin)/2,(ymax+ymin)/2],color='k')
-plt.rcParams['axes.spines.right'] = False
-plt.rcParams['axes.spines.top'] = False
-plt.rcParams['axes.spines.left'] = False
-plt.rcParams['axes.spines.bottom'] = False
-plt.title('M10-c2') 
+import os
+import glob
+
+files=glob.glob(os.path.join(r'F:\training_videos\c vs m\Females-m','*.xlsx'))
+
+for idx,file in enumerate(files):
+    pos=pd.read_excel(file)
+    dx = array(pos.X[1:])-array(pos.X[:-1]); dx=np.concatenate(([0],dx))
+    dy = array(pos['Y'][1:])-array(pos['Y'][:-1]); dy=np.concatenate(([0],dy))
+    
+    for i,x in enumerate(dx):
+        if abs(dx[i])>50: #Tracking noise threshold
+            pos['X'][i]= pos['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+            pos['Y'][i]=NaN
+        
+    figure();
+    #az=plt.subplot(2,5,idx+1)
+    plot(pos['X'],pos['Y'])
+    xmin=min(pos['X']); xmax=max(pos['X'])
+    ymin=min(pos['Y']); ymax=max(pos['Y'])
+    az.invert_yaxis()
+    xaxis=plot([xmin, xmin],[ymin, ymax],color='k')
+    yaxis=plot([xmin, xmax],[ymax, ymax],color='k')
+    xaxis1=plot([xmax, xmax],[ymin, ymax],color='k')
+    yaxis1=plot([xmin, xmax],[ymin, ymin],color='k')
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.draw()
+    plt.axis('off')
+    
+    plt.savefig(file+'.png',figsize=(5,5),dpi=600)
+    
+#xaxis=plot([(xmin+xmax)/2,(xmin+xmax)/2],[ymin,ymax],color='k')
+#yaxis=plot([xmin,xmax],[(ymax+ymin)/2,(ymax+ymin)/2],color='k')
+#plt.rcParams['axes.spines.right'] = False
+#plt.rcParams['axes.spines.top'] = False
+#plt.rcParams['axes.spines.left'] = False
+#plt.rcParams['axes.spines.bottom'] = False
+#plt.title('M10-c2') 
 
 
 #looping for cleaning data and generating heatmap
@@ -59,32 +84,13 @@ for file in files:
 #figure()
 #ax=subplot(20,40,1+i)
 
-
+#generating heatmap
 
 files=glob.glob(os.path.join(r'E:\training_videos\Males-m','*.xlsx'))
 for idx, file in enumerate(files):
     subplot(4,3,idx+1)
     pos=pd.read_excel(file)
     occu_heatmap(pos)
-
-
-
-fig,az=plt.subplots()
-plot(pos['X'],pos['Y'])
-xmin=min(pos['X']); xmax=max(pos['X'])
-ymin=min(pos['Y']); ymax=max(pos['Y'])
-az.invert_yaxis()
-        
-xaxis=plot([xmin, xmin],[ymin, ymax],color='k')
-yaxis=plot([xmin, xmax],[ymax, ymax],color='k')
-xaxis1=plot([xmax, xmax],[ymin, ymax],color='k')
-yaxis1=plot([xmin, xmax],[ymin, ymin],color='k')
-
-plt.gca().set_aspect('equal', adjustable='box')
-plt.draw()
-plt.axis('off')
-
-plt.savefig('gnatM3-c.eps',dpi=300)
 
 
 #clean_pos=pd.DataFrame(index=np.arange(len(pos)),columns=['X','Y'])
@@ -99,17 +105,6 @@ plt.savefig('gnatM3-c.eps',dpi=300)
 #plot(clean_pos['X'],clean_pos['Y'])
 #figure();plot(pos['X'],pos['Y'])
 
-
-
-
-#############################################################################
-#Hist
-############################################################################
-val=np.arange(min(dx), max(dx) + 1, 1)
-figure();gca().set_xlim(0,100)
-hist(abs(dx),bins=val)
-
-############################################################################
 #out-of-scale plot
 idx=pos['X']<475
 idx2=pos['Y'] >46
@@ -131,6 +126,17 @@ plt.gca().set_aspect('equal', adjustable='box')
 plt.draw()
 plt.axis('off')
 plt.savefig('M13-m1.eps',dpi=300)
+
+
+
+#############################################################################
+#Hist
+############################################################################
+val=np.arange(min(dx), max(dx) + 1, 1)
+figure();gca().set_xlim(0,100)
+hist(abs(dx),bins=val)
+
+############################################################################
 
 
 def occu_heatmap(pos):  
