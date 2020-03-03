@@ -38,66 +38,34 @@ plt.rcParams['axes.spines.bottom'] = False
 plt.title('M10-c2') 
 
 
-#for grant 
-#import os
-
-#def Load():
-#    for filename in os.listdir(r"F:\training_videos\Males-c"):
-#        pos = pd.read_excel(os.path.join(r'F:\training_videos\Males-c', filename), 'r')
-#Load()
-
-
-    
-
-
-
-
-'''
-path = r"F:\training_videos\Males-c"
-
-files = []
-# r=root, d=directories, f = files
-for r, d, f in os.walk(path):
-    for file in f:
-        if '.xlsx' in file:
-            files.append(os.path.join(r, file))
-
-for f in files:
-    print(f)
-    pos=pd.read_excel(r"F:\training_videos\Males-c\str[i]+ str(.xlsx)")
-'''
-#pos=pd.read_excel(r'F:\training_videos\122519\M2-c.xlsx')
-
-
-
+#looping for cleaning data and generating heatmap
 import os
 import glob
 
-
-
-
-files=glob.glob(os.path.join(r"F:\training_videos\Males-c",'*.xlsx'))
+files=glob.glob(os.path.join(r'E:\training_videos\Males-m','*.xlsx'))
 for file in files:
     pos=pd.read_excel(file)
-
-    dx = array(pos['X'][1:])-array(pos['X'][:-1]); dx=np.concatenate(([0],dx))
+    dx = array(pos.X[1:])-array(pos.X[:-1]); dx=np.concatenate(([0],dx))
     dy = array(pos['Y'][1:])-array(pos['Y'][:-1]); dy=np.concatenate(([0],dy))
     
     for i,x in enumerate(dx):
         if abs(dx[i])>50: #Tracking noise threshold
-            pos['X'][i]=pos['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+            pos['X'][i]= pos['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
             pos['Y'][i]=NaN
-    #    if abs(dy[i])>100:
-#        pos['X'][i]=NaN
-#        pos['Y'][i]=pos['Y'][i-1]
+    pos.to_excel(file)
 
-pos.to_excel(file, index = False)
-
-
-
+#for i in range(2):
+#    pass
+#figure()
+#ax=subplot(20,40,1+i)
 
 
 
+files=glob.glob(os.path.join(r'E:\training_videos\Males-m','*.xlsx'))
+for idx, file in enumerate(files):
+    subplot(4,3,idx+1)
+    pos=pd.read_excel(file)
+    occu_heatmap(pos)
 
 
 
@@ -142,10 +110,7 @@ figure();gca().set_xlim(0,100)
 hist(abs(dx),bins=val)
 
 ############################################################################
-name of files=dir()
 #out-of-scale plot
-for i in name of files:
-pos=pd.read_excel(r'F:\training_videos\022020\'+str[i]+ str(.xlsx))
 idx=pos['X']<475
 idx2=pos['Y'] >46
 #xmin=min(idx); xmax=max(idx)
@@ -176,14 +141,15 @@ def occu_heatmap(pos):
     ybins = np.linspace(ypos.min(), ypos.max()+1e-6, bins+1)
     occu, _, _ = np.histogram2d(ypos, xpos, [ybins,xbins])
     occu=gaussian_filter(occu,sigma=0.7)
-    fig,ax=plt.subplots()
+    #fig,ax=plt.subplots()
     q = imshow(occu, cmap='jet', interpolation='bilinear')
-    ax.axis('off')
-    cbar=fig.colorbar(q,orientation='vertical')
-    cticks=cbar.ax.get_xticks()
-    cbar.set_ticks([])
+    #ax.axis('off')
+    #cbar=fig.colorbar(q,orientation='vertical')
+    #cticks=cbar.ax.get_xticks()
+    #cbar.set_ticks([])
     #ax.invert_yaxis()
-    return fig
+    return q
+
 
 
 
