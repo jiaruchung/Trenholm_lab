@@ -26,7 +26,9 @@ sns.set(style="ticks", color_codes=True)
 import os
 import glob
 
-files=glob.glob(os.path.join(r'F:\training_videos\c vs m\Females-m','*.xlsx'))
+#plotting automation 
+
+files=glob.glob(os.path.join(r'F:\training_videos\m vs c','*.xlsx'))
 
 for idx,file in enumerate(files):
     pos=pd.read_excel(file)
@@ -37,13 +39,18 @@ for idx,file in enumerate(files):
         if abs(dx[i])>50: #Tracking noise threshold
             pos['X'][i]= pos['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
             pos['Y'][i]=NaN
-        
-    figure();
-    #az=plt.subplot(2,5,idx+1)
+    
+#    figure()
+#    plot(pos['X'],pos['Y'])
+#    xmin=min(pos['X']); xmax=max(pos['X'])
+#    ymin=min(pos['Y']); ymax=max(pos['Y'])
+#    plt.gca().invert_yaxis
+    fig,az=plt.subplots()
     plot(pos['X'],pos['Y'])
     xmin=min(pos['X']); xmax=max(pos['X'])
     ymin=min(pos['Y']); ymax=max(pos['Y'])
-    az.invert_yaxis()
+    az.invert_yaxis()   
+
     xaxis=plot([xmin, xmin],[ymin, ymax],color='k')
     yaxis=plot([xmin, xmax],[ymax, ymax],color='k')
     xaxis1=plot([xmax, xmax],[ymin, ymax],color='k')
@@ -51,7 +58,7 @@ for idx,file in enumerate(files):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.draw()
     plt.axis('off')
-    
+    plt.show
     plt.savefig(file+'.png',figsize=(5,5),dpi=600)
     
 #xaxis=plot([(xmin+xmax)/2,(xmin+xmax)/2],[ymin,ymax],color='k')
@@ -84,13 +91,59 @@ for file in files:
 #figure()
 #ax=subplot(20,40,1+i)
 
-#generating heatmap
+#automatically generating heatmap
 
-files=glob.glob(os.path.join(r'E:\training_videos\Males-m','*.xlsx'))
+files=glob.glob(os.path.join(r'F:\training_videos\c vs ddm\Blinds-c','*.xlsx'))
 for idx, file in enumerate(files):
-    subplot(4,3,idx+1)
+    subplot(4,5,idx+1)
     pos=pd.read_excel(file)
-    occu_heatmap(pos)
+    a,b=occu_heatmap(pos)
+    
+def ur(m): 
+    first=np.flip(m,axis=1)
+    return first       
+def bl(m): 
+    first=np.flip(m,axis=0)
+    return first         
+def br(m):
+    first=np.flip(m,axis=0)
+    sec=np.flip(first,axis=0)
+    return sec  
+def ul(m):
+    first = m
+    return first 
+
+def heatmap_mat(occu):
+    occu=gaussian_filter(occu,sigma=0.7)
+    q = imshow(occu, cmap='jet', interpolation='bilinear')
+    return q
+#flip the heatmap ligned with same corners
+
+for idx,file in enumerate(files):
+    name=files[idx].split('-')[-1].split('.')[-2]
+    if name=='ur':
+        pos=pd.read_excel(file)
+        _,m=occu_heatmap(pos)
+        flipped_from_ur=ur(m)
+    elif name=='bl':
+        pos=pd.read_excel(file)
+        _,m=occu_heatmap(pos)
+        flipped_from_bl=bl(m)
+    elif name=='br':
+        pos=pd.read_excel(file)
+        _,m=occu_heatmap(pos)
+        flipped_from_br=br(m)
+    elif name=='ul':
+        pos=pd.read_excel(file)
+        _,m=occu_heatmap(pos)
+        static=ul(m)
+
+figure(); heatmap_mat(flipped_from_ur)
+figure(); heatmap_mat(flipped_from_bl)
+figure(); heatmap_mat(flipped_from_ur)
+figure(); heatmap_mat(static)
+figure(); heatmap_mat(flipped_from_ur + flipped_from_bl + flipped_from_ur + static)
+
 
 
 #clean_pos=pd.DataFrame(index=np.arange(len(pos)),columns=['X','Y'])
@@ -137,7 +190,10 @@ figure();gca().set_xlim(0,100)
 hist(abs(dx),bins=val)
 
 ############################################################################
+#single heatmap
 
+pos=pd.read_excel(r'F:\training_videos\c vs ddm\GnatM1_control-c-ul.xlsx')
+figure();plot(pos['X'],pos['Y'])
 
 def occu_heatmap(pos):  
     bins=10 
@@ -154,23 +210,38 @@ def occu_heatmap(pos):
     #cticks=cbar.ax.get_xticks()
     #cbar.set_ticks([])
     #ax.invert_yaxis()
-    return q
-
-
-
-
-occu_heatmap(pos)
-
+    return q,occu
+figure(); occu_heatmap(pos)
 
 
 ##############################################################################
 
-#Define position as an array
+#calculation 
+
+pos=pd.read_excel(r'F:\training_videos\c vs ddm\GnatM1_control-c-ul.xlsx')
+figure();plot(pos['X'],pos['Y'])
+
+#Calculate distance between consecutive x,y points
+dx = array(pos['X'][1:])-array(pos['X'][:-1]); dx=np.concatenate(([0],dx))
+dy = array(pos['Y'][1:])-array(pos['Y'][:-1]); dy=np.concatenate(([0],dy))
+
+
+for i,x in enumerate(dx):
+    if abs(dx[i])>50: #Tracking noise threshold
+        pos['X'][i]=pos['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+        pos['Y'][i]=pos['Y'][i-1]
+        
+fig,az=plt.subplots()
+plot(pos['X'],pos['Y'])
+xmin=min(pos['X']); xmax=max(pos['X'])
+ymin=min(pos['Y']); ymax=max(pos['Y'])
+az.invert_yaxis()
+xaxis=plot([(xmin+xmax)/2,(xmin+xmax)/2],[ymin,ymax],color='k')
+yaxis=plot([xmin,xmax],[(ymax+ymin)/2,(ymax+ymin)/2],color='k')
+
+
 pos_x=array(pos['X'])
 pos_y=array(pos['Y'])
-
-
-
 fr= 30 #camera frame rate
 
 #you may have to manually define the center of your environment for data with irregular path plots
@@ -331,25 +402,8 @@ for i,x in enumerate (range(len(quads))):
     
  
 ##############################################################################
-
- 
-from scipy.ndimage import gaussian_filter
-def occu_heatmap(pos):  
-    bins=28 
-    xpos=pos['X']
-    ypos=pos['Y']
-    xbins = np.linspace(xpos.min(), xpos.max()+1e-6, bins+1)
-    ybins = np.linspace(ypos.min(), ypos.max()+1e-6, bins+1)
-    occu, _, _ = np.histogram2d(ypos, xpos, [ybins,xbins])
-    occu=gaussian_filter(occu,sigma=0.7)
-    fig,ax=plt.subplots()
-    imshow(occu, cmap='jet', interpolation='bilinear')
-    ax.axis('off')
-    cbar=fig.colorbar(q,orientation='vertical')
-    cticks=cbar.ax.get_xticks()
-    cbar.set_ticks([])
-    return fig
-
+#plots and stats
+##############################################################################
 #day 1 plot
 time_data = pd.read_csv('Total time spent_stats_blind.csv')
 dat=time_data[['computer','mouse']]
@@ -362,7 +416,7 @@ plot(dat.T, color='grey'); plot(means,color='black', linewidth=3)
 #plt.xlabel('Categories') 
 plt.ylabel('Time spent with object (s) ') 
 #plot([0,1],[150,150], color = 'k')
-#plt.text(0.45, 155, '*p=0.033', verticalalignment='center')
+plt.text(0.45, 150, 'P=0.17', verticalalignment='center')
 
 plt.rcParams['axes.spines.right'] = False
 plt.rcParams['axes.spines.top'] = False
@@ -370,30 +424,30 @@ plt.savefig('blind.eps',dpi=300)
 
 
 #day 2 plot 
-time_data = pd.read_csv(r'C:\Users\labuser\Documents\Python_EC\Total time spent_stats_reversed_obj.csv')
-dat=time_data[['computer day 2','mouse day 2']]
+time_data = pd.read_csv(r'Total time spent_stats_sighted_ddm_control.csv')
+dat=time_data[['computer','DDM']]
 means=pd.DataFrame(index=dat.columns, columns=np.arange(1))
-means.loc['computer day 2',0]= dat['computer day 2'].mean()
-means.loc['mouse day 2',0]=dat['mouse day 2'].mean()
+means.loc['computer',0]= dat['computer'].mean()
+means.loc['DDM',0]=dat['DDM'].mean()
 fig=figure()
 plot(dat.T, color='grey'); plot(means,color='black', linewidth=3)
 #plt.title('More time spent with 3D computer object than mouse object') 
 #plt.xlabel('Categories') 
 plt.ylabel('Time spent with object (s) ') 
-plot([0,1],[150,150], color = 'k')
-#plt.text(0.45, 155, '*p=0.033', verticalalignment='center')
+#plot([0,1],[150,150], color = 'k')
+plt.text(0.45, 200, 'P=0.0002', verticalalignment='center')
 
 plt.rcParams['axes.spines.right'] = False
 plt.rcParams['axes.spines.top'] = False
-plt.savefig('reversed_obj.eps',dpi=300)
+plt.savefig('sighted_ddm_control.eps',dpi=300)
 
 #stats
-time_data = pd.read_csv('Total time spent_stats_blind.csv')
+time_data = pd.read_csv('Total time spent_stats_sighted_ddm_control.csv')
 from numpy import ndarray
 computer=time_data['computer']
-mouse=time_data['mouse']
+mouse=time_data['DDM']
 computer_mean = time_data['computer'].mean()
-mouse_mean = time_data['mouse'].mean()
+mouse_mean = time_data['DDM'].mean()
 import scipy.stats
 scipy.stats.wilcoxon(computer, mouse)
 
@@ -483,7 +537,6 @@ plt.scatter(Fighting_durations, Distance_ratio)
 plt.title('Correlation between social defeat and object avoidance') 
 plt.xlabel('Fighting durations in secs') 
 plt.ylabel('Ratio of total distance travelled')
-
 
 plt.subplot(2,1,2)
 Time_spent_ratio=dat['Time spent ratio']  #the larger the more pronouced effect of object avoidance 
