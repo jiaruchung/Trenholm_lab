@@ -98,7 +98,10 @@ for idx, file in enumerate(files):
     subplot(4,5,idx+1)
     pos=pd.read_excel(file)
     a,b=occu_heatmap(pos)
-    
+
+
+
+   
 def ur(m): 
     first=np.flip(m,axis=1)
     return first       
@@ -119,24 +122,37 @@ def heatmap_mat(occu):
     return q
 #flip the heatmap ligned with same corners
 
+
+urs=[]
 for idx,file in enumerate(files):
     name=files[idx].split('-')[-1].split('.')[-2]
+    pos=pd.read_excel(file)
     if name=='ur':
-        pos=pd.read_excel(file)
         _,m=occu_heatmap(pos)
         flipped_from_ur=ur(m)
+        urs.append(flipped_from_ur) 
     elif name=='bl':
-        pos=pd.read_excel(file)
         _,m=occu_heatmap(pos)
         flipped_from_bl=bl(m)
+        urs.append(flipped_from_bl)
     elif name=='br':
-        pos=pd.read_excel(file)
         _,m=occu_heatmap(pos)
         flipped_from_br=br(m)
+        urs.append(flipped_from_br)
     elif name=='ul':
-        pos=pd.read_excel(file)
         _,m=occu_heatmap(pos)
         static=ul(m)
+        urs.append(static)
+
+
+vals=0
+for i in range(len(urs)):
+    vals+=urs[i]
+    vals=vals+urs[i]
+
+    
+
+
 
 figure(); heatmap_mat(flipped_from_ur)
 figure(); heatmap_mat(flipped_from_bl)
