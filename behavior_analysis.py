@@ -74,7 +74,7 @@ for idx,file in enumerate(files):
 import os
 import glob
 
-files=glob.glob(os.path.join(r'E:\training_videos\Males-m','*.xlsx'))
+files=glob.glob(os.path.join(r'F:\training_videos\c vs m\Blinds-c','*.xlsx'))
 for file in files:
     pos=pd.read_excel(file)
     dx = array(pos.X[1:])-array(pos.X[:-1]); dx=np.concatenate(([0],dx))
@@ -92,16 +92,6 @@ for file in files:
 #ax=subplot(20,40,1+i)
 
 #automatically generating heatmap
-
-files=glob.glob(os.path.join(r'F:\training_videos\c vs ddm\Blinds-c','*.xlsx'))
-for idx, file in enumerate(files):
-    subplot(4,5,idx+1)
-    pos=pd.read_excel(file)
-    a,b=occu_heatmap(pos)
-
-
-
-   
 def ur(m): 
     first=np.flip(m,axis=1)
     return first       
@@ -110,7 +100,7 @@ def bl(m):
     return first         
 def br(m):
     first=np.flip(m,axis=0)
-    sec=np.flip(first,axis=0)
+    sec=np.flip(first,axis=1)
     return sec  
 def ul(m):
     first = m
@@ -120,30 +110,52 @@ def heatmap_mat(occu):
     occu=gaussian_filter(occu,sigma=0.7)
     q = imshow(occu, cmap='jet', interpolation='bilinear')
     return q
-#flip the heatmap ligned with same corners
 
+def occu_heatmap(pos):  
+    bins=10 
+    xpos=pos['X']
+    ypos=pos['Y']
+    xbins = np.linspace(xpos.min(), xpos.max()+1e-6, bins+10)
+    ybins = np.linspace(ypos.min(), ypos.max()+1e-6, bins+1)
+    occu, _, _ = np.histogram2d(ypos, xpos, [ybins,xbins])
+    occu=gaussian_filter(occu,sigma=0.7)
+    #fig,ax=plt.subplots()
+    q = imshow(occu, cmap='jet', interpolation='bilinear')
+    #ax.axis('off')
+    #cbar=fig.colorbar(q,orientation='vertical')
+    #cticks=cbar.ax.get_xticks()
+    #cbar.set_ticks([])
+    #ax.invert_yaxis()
+    return q,occu
+#figure(); occu_heatmap(pos)
+#flip the heatmap ligned with same corners
+    
+files=glob.glob(os.path.join(r'F:\training_videos\c vs m\Males-c','*.xlsx'))
+for idx, file in enumerate(files):
+    subplot(4,5,idx+1)
+    pos=pd.read_excel(file)
+    a,b=occu_heatmap(pos)
 
 urs=[]
 for idx,file in enumerate(files):
     name=files[idx].split('-')[-1].split('.')[-2]
     pos=pd.read_excel(file)
     if name=='ur':
-        _,m=occu_heatmap(pos)
-        flipped_from_ur=ur(m)
+        _,mur=occu_heatmap(pos)
+        flipped_from_ur=ur(mur)
         urs.append(flipped_from_ur) 
     elif name=='bl':
-        _,m=occu_heatmap(pos)
-        flipped_from_bl=bl(m)
+        _,mbl=occu_heatmap(pos)
+        flipped_from_bl=bl(mbl)
         urs.append(flipped_from_bl)
     elif name=='br':
-        _,m=occu_heatmap(pos)
-        flipped_from_br=br(m)
+        _,mbr=occu_heatmap(pos)
+        flipped_from_br=br(mbr)
         urs.append(flipped_from_br)
     elif name=='ul':
-        _,m=occu_heatmap(pos)
-        static=ul(m)
+        _,mul=occu_heatmap(pos)
+        static=ul(mul)
         urs.append(static)
-
 
 vals=0
 for i in range(len(urs)):
@@ -151,14 +163,13 @@ for i in range(len(urs)):
     vals=vals+urs[i]
 
     
-
-
-
 figure(); heatmap_mat(flipped_from_ur)
 figure(); heatmap_mat(flipped_from_bl)
-figure(); heatmap_mat(flipped_from_ur)
+figure(); heatmap_mat(flipped_from_br)
 figure(); heatmap_mat(static)
-figure(); heatmap_mat(flipped_from_ur + flipped_from_bl + flipped_from_ur + static)
+figure(); heatmap_mat(flipped_from_ur + flipped_from_bl + flipped_from_br + static)
+
+plt.savefig('heatmaps/Males-c' +'.eps',figsize=(5,5),dpi=600)
 
 
 
