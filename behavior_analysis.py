@@ -8,6 +8,8 @@ from scipy.stats import ranksums
 import seaborn as sns
 import glob
 
+BINS = 10 
+
 # from matplotlib_scalebar.scalebar import ScaleBar
 
 # -*- coding: utf-8 -*-
@@ -46,11 +48,10 @@ def ul(m):
     return first 
 
 def occu_heatmap(pos):  
-    bins=10 
     xpos=pos['X']
     ypos=pos['Y']
-    xbins = np.linspace(xpos.min(), xpos.max()+1e-6, bins+1)
-    ybins = np.linspace(ypos.min(), ypos.max()+1e-6, bins+1)
+    xbins = np.linspace(xpos.min(), xpos.max()+1e-6, BINS+1)
+    ybins = np.linspace(ypos.min(), ypos.max()+1e-6, BINS+1)
     occu, _, _ = np.histogram2d(ypos, xpos, [ybins,xbins])
     occu=gaussian_filter(occu,sigma=0.7)
     fig,ax=plt.subplots()
@@ -116,8 +117,30 @@ condition_2_filenames = glob.glob(os.path.join('./Males-m-excel','*.xlsx'))
 urs1 = get_urs(condition_1_filenames)
 urs2 = get_urs(condition_2_filenames)
 
-print(urs1)
-print(urs2)
+def collect_samples(urs):
+    cells = []
+    for i in range(BINS):
+        cells.append([])
+        for j in range(BINS):
+            cells[i].append([])
+
+    for occu in enumerate(urs):
+        for i in range(BINS):
+            for j in range(BINS):
+                cells[i][j].append(occu[1][i][j])
+    return cells
+
+urs1_samples_by_cell = collect_samples(urs1)
+urs2_samples_by_cell = collect_samples(urs2)              
+
+ranksum_test_on_cells = []
+
+for i in range(BINS):
+    ranksum_test_on_cells.append([])
+    for j in range(BINS):
+        ranksum_test_on_cells[i].append(ranksums(urs1_samples_by_cell[i][j], urs2_samples_by_cell[i][j]))
+
+print(ranksum_test_on_cells)
 # vals2=0
 # for i in range(len(urs2)):
 # #    vals+=urs[i]
