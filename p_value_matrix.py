@@ -140,10 +140,22 @@ for i in range(BINS):
     for j in range(BINS):
         ranksum_test_on_cells[i].append(ranksums(urs1_samples_by_cell[i][j], urs2_samples_by_cell[i][j]))
 
-print(ranksum_test_on_cells)
+result = list(map(lambda row: list(map(lambda element: 1 - element.pvalue,
+                                       row)),
+                  ranksum_test_on_cells))
 
-#picking pval for making matrix 
-print(ranksum_test_on_cells[0][0].statistic)
-print(ranksum_test_on_cells[0][0].pvalue)
+print('Displaying difference of two samples')
+imshow(result, cmap='jet', interpolation='bilinear')
 
-#
+print(result)
+# vals2=0
+# for i in range(len(urs2)):
+# #    vals+=urs[i]
+#     vals2=vals2+urs2[i]
+    
+#rank_sum test for each value in 2 conditions 
+
+# ranksums(flipped_from_ur[:][:], flipped_from_ur2[:][:])
+# ranksums(static[:][:], static2[:][:])
+# ranksums(flipped_from_br[:][:], flipped_from_br2[:][:])
+# ranksums(flipped_from_bl[:][:], flipped_from_bl2[:][:])
