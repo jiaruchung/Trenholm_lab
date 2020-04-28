@@ -140,7 +140,13 @@ for i in range(BINS):
     for j in range(BINS):
         ranksum_test_on_cells[i].append(ranksums(urs1_samples_by_cell[i][j], urs2_samples_by_cell[i][j]))
 
-print(ranksum_test_on_cells)
+result = list(map(lambda row: list(map(lambda element: 1 - element.pvalue,
+                                       row)),
+                  ranksum_test_on_cells))
+
+print('Displaying difference of two samples')
+imshow(result, cmap='jet', interpolation='bilinear')
+
 # vals2=0
 # for i in range(len(urs2)):
 # #    vals+=urs[i]
