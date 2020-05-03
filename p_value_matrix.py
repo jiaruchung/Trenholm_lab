@@ -59,9 +59,8 @@ def occu_heatmap(pos):
     gca().set_yticks([])
     gca().set_xticks([])
     #ax.axis('off')
-    cbar=fig.colorbar(q,orientation='vertical')
-    cticks=cbar.ax.get_xticks()
-    cbar.set_ticks([])
+ #   cticks=cbar.ax.get_xticks()
+ #   cbar.set_ticks([])
     min_=plt.text(11,9.5,'min')
     max_=plt.text(11,-0.3,'max')
     #ax.invert_yaxis()
@@ -140,12 +139,28 @@ for i in range(BINS):
     for j in range(BINS):
         ranksum_test_on_cells[i].append(ranksums(urs1_samples_by_cell[i][j], urs2_samples_by_cell[i][j]))
 
-result = list(map(lambda row: list(map(lambda element: 1 - element.pvalue,
+result = list(map(lambda row: list(map(lambda element: element.pvalue,
                                        row)),
                   ranksum_test_on_cells))
 
 print('Displaying difference of two samples')
-imshow(result, cmap='jet', interpolation='bilinear')
+
+cmap = sns.cm.rocket_r
+fig, ax = plt.subplots(1)
+pval_heatmap = sns.heatmap(result, 
+                           vmin=0.001, 
+                           vmax=0.05, 
+                           cmap=cmap,
+                           ax=ax,
+                           cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})
+
+cbar = pval_heatmap.collections[0].colorbar
+cbar.set_ticks([0.05, 0.04, 0.03, 0.02, 0.01, 0.001])
+cbar.set_ticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
+cbar.ax.invert_yaxis()
+
+
+plt.show()
 
 print(result)
 # vals2=0
