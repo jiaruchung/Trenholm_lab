@@ -71,7 +71,6 @@ for idx,file in enumerate(files):
 
 
 #looping for cleaning data and generating heatmap
-#condition 1
 import os
 import glob
 
@@ -190,64 +189,6 @@ figure(); heatmap_mat(vals)
             
 plt.savefig('heatmaps/reverse-c.eps',figsize=(5,5), dpi=600)
     
-#figure(); heatmap_mat(flipped_from_ur)
-#figure(); heatmap_mat(flipped_from_bl)
-#figure(); heatmap_mat(flipped_from_br)
-#figure(); heatmap_mat(static)
-#figure(); heatmap_mat(flipped_from_ur + flipped_from_bl + flipped_from_br + static)
-
-
-#condition 2
-files2=glob.glob(os.path.join(r'F:\training_videos\c vs m\Males-m','*.xlsx'))
-for file2 in files2:
-    pos2=pd.read_excel(file2)
-    dx2 = array(pos2.X[1:])-array(pos2.X[:-1]); dx2=np.concatenate(([0],dx2))
-    dy2 = array(pos2['Y'][1:])-array(pos2['Y'][:-1]); dy2=np.concatenate(([0],dy2))
-    
-    for i,x in enumerate(dx2):
-        if abs(dx2[i])>50: #Tracking noise threshold
-            pos2['X'][i]= pos2['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
-            pos2['Y'][i]=NaN
-    pos2.to_excel(file2)
-
-
-urs2=[]
-for idx,file2 in enumerate(files2):
-    name2=files2[idx].split('-')[-1].split('.')[-2]
-    pos2=pd.read_excel(file2)
-    if name2=='ur':
-        _,mur2=occu_heatmap(pos2)
-        flipped_from_ur2=ur(mur2)
-        urs.append(flipped_from_ur2) 
-    elif name2=='bl':
-        _,mbl2=occu_heatmap(pos2)
-        flipped_from_bl2=bl(mbl2)
-        urs2.append(flipped_from_bl2)
-    elif name2=='br':
-        _,mbr2=occu_heatmap(pos2)
-        flipped_from_br2=br(mbr2)
-        urs2.append(flipped_from_br2)
-    elif name2=='ul':
-        _,mul2=occu_heatmap(pos2)
-        static2=ul(mul2)
-        urs2.append(static2)
-
-vals2=0
-for i in range(len(urs2)):
-#    vals+=urs[i]
-    vals2=vals2+urs2[i]
-    
-figure(); heatmap_mat(vals2)
-
-#rank_sum test for each value in 2 conditions 
-
-from scipy.stats import ranksums
-ranksums(flipped_from_ur[:][:], flipped_from_ur2[:][:])
-ranksums(static[:][:], static2[:][:])
-ranksums(flipped_from_br[:][:], flipped_from_br2[:][:])
-ranksums(flipped_from_bl[:][:], flipped_from_bl2[:][:])
-
-
 #clean_pos=pd.DataFrame(index=np.arange(len(pos)),columns=['X','Y'])
 #for i,x in enumerate(dx):
 #    if abs(dx[i])>25: #Tracking noise threshold
@@ -537,7 +478,7 @@ plot(dat.T, color='grey'); plot(means,color='black', linewidth=3)
 #plt.xlabel('Categories') 
 plt.ylabel('Time spent with object (s) ') 
 #plot([0,1],[150,150], color = 'k')
-plt.text(0.45, 200, 'P=0.0002', verticalalignment='center')
+plt.text(0.45, 200, 'P=0.39', verticalalignment='center')
 
 plt.rcParams['axes.spines.right'] = False
 plt.rcParams['axes.spines.top'] = False
