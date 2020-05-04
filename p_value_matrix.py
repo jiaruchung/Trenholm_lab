@@ -110,8 +110,8 @@ def get_urs(filename_list):
             
 # plt.savefig('heatmaps/reverse-c.eps',figsize=(5,5), dpi=600)
 
-condition_1_filenames = glob.glob(os.path.join('./Sighted-c-excel','*.xlsx'))
-condition_2_filenames = glob.glob(os.path.join('./Sighted-ddm-excel','*.xlsx'))
+condition_1_filenames = glob.glob(os.path.join('./Males-c-excel','*.xlsx'))
+condition_2_filenames = glob.glob(os.path.join('./Males-m-excel','*.xlsx'))
 
 urs1 = get_urs(condition_1_filenames)
 urs2 = get_urs(condition_2_filenames)
@@ -145,17 +145,51 @@ result = list(map(lambda row: list(map(lambda element: element.pvalue,
 
 print('Displaying difference of two samples')
 
+
+#heatmap style 1
+import pylab as plt
+fig, ax2 = plt.subplots()
+pval_heatmap = plt.imshow(result, 
+           vmin=0.001,
+           vmax=0.05,
+           cmap='RdGy',
+           interpolation='bilinear', 
+           )
+pval_heatmap = gaussian_filter(pval_heatmap,sigma=0.7)
+
+ax = plt.gca()
+ax.axes.xaxis.set_visible(False)
+ax.axes.yaxis.set_visible(False)
+cbar = plt.colorbar()
+#fig.colorbar(pval_heatmap, ax=ax2)
+cbar.set_label('P-value for the Wilcoxon rank sum statistic',size=14,weight='bold')
+#cbar = pval_heatmap.collections[0].colorbar
+cbar.set_ticks([0.05, 0.04, 0.03, 0.02, 0.01, 0.001])
+cbar.set_ticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
+cbar.ax.tick_params(labelsize='large')
+cbar.ax.invert_yaxis()
+#cbar.set_yticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
+#cbar.ax.tick_params(labelsize=14) 
+
+
+
+#heatmap style 2
 cmap = sns.cm.rocket_r
+
+result_smooth = gaussian_filter(result, sigma=0.7)
+
 sns.set(font_scale=3)
 fig, ax = plt.subplots(1)
-pval_heatmap = sns.heatmap(result, 
+pval_heatmap2 = sns.heatmap(result_smooth, 
                            vmin=0.001, 
                            vmax=0.05, 
                            cmap=cmap,
                            ax=ax,
+                           xticklabels = False, 
+                           yticklabels = False,
                            annot_kws={"size": 14},
                            cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})
-cbar = pval_heatmap.collections[0].colorbar
+cbar = pval_heatmap2.collections[0].colorbar
 cbar.set_ticks([0.05, 0.04, 0.03, 0.02, 0.01, 0.001])
 cbar.set_ticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
 cbar.ax.invert_yaxis()
