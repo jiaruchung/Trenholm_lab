@@ -143,6 +143,8 @@ result = list(map(lambda row: list(map(lambda element: element.pvalue,
                                        row)),
                   ranksum_test_on_cells))
 
+log_result = -log10(result)    
+    
 print('Displaying difference of two samples')
 
 
@@ -162,11 +164,11 @@ ax.axes.xaxis.set_visible(False)
 ax.axes.yaxis.set_visible(False)
 cbar = plt.colorbar()
 #fig.colorbar(pval_heatmap, ax=ax2)
-cbar.set_label('P-value for the Wilcoxon rank sum statistic',size=14,weight='bold')
+cbar.set_label('P-value for the Wilcoxon rank sum statistic',size=20,weight='bold')
 #cbar = pval_heatmap.collections[0].colorbar
 cbar.set_ticks([0.05, 0.04, 0.03, 0.02, 0.01, 0.001])
 cbar.set_ticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
-cbar.ax.tick_params(labelsize='large')
+cbar.ax.tick_params(labelsize='20')
 cbar.ax.invert_yaxis()
 #cbar.set_yticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
 #cbar.ax.tick_params(labelsize=14) 
@@ -176,11 +178,11 @@ cbar.ax.invert_yaxis()
 #heatmap style 2
 cmap = sns.cm.rocket_r
 
-result_smooth = gaussian_filter(result, sigma=0.7)
+#result_smooth = gaussian_filter(result, sigma=0.7)
 
 sns.set(font_scale=3)
 fig, ax = plt.subplots(1)
-pval_heatmap2 = sns.heatmap(result_smooth, 
+pval_heatmap2 = sns.heatmap(result, 
                            vmin=0.001, 
                            vmax=0.05, 
                            cmap=cmap,
@@ -190,22 +192,32 @@ pval_heatmap2 = sns.heatmap(result_smooth,
                            annot_kws={"size": 14},
                            cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})
 cbar = pval_heatmap2.collections[0].colorbar
-cbar.set_ticks([0.05, 0.04, 0.03, 0.02, 0.01, 0.001])
-cbar.set_ticklabels(['0.05', '0.04', '0.03', '0.02', '0.01', '0.001'])
+cbar.set_ticks([0.05, 0.01, 0.001, 0])
+cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
+#cbar.set_ticks(len(result), 0.001, update_ticks=True)
+#cbar.set_ticklabels(len(result), 0.001, update_ticks=True)
 cbar.ax.invert_yaxis()
 
 
-plt.show()
+#log_heatmap
+#cmap = sns.cm.rocket_r
 
-print(result)
-# vals2=0
-# for i in range(len(urs2)):
-# #    vals+=urs[i]
-#     vals2=vals2+urs2[i]
-    
-#rank_sum test for each value in 2 conditions 
+#result_smooth = gaussian_filter(result, sigma=0.7)
 
-# ranksums(flipped_from_ur[:][:], flipped_from_ur2[:][:])
-# ranksums(static[:][:], static2[:][:])
-# ranksums(flipped_from_br[:][:], flipped_from_br2[:][:])
-# ranksums(flipped_from_bl[:][:], flipped_from_bl2[:][:])
+sns.set(font_scale=3)
+fig, ax = plt.subplots(1)
+pval_heatmap2 = sns.heatmap(log_result, 
+                           #vmin=0.001, 
+                           #vmax=0.05, 
+                           #cmap=cmap,
+                           ax=ax,
+                           xticklabels = False, 
+                           yticklabels = False,
+                           annot_kws={"size": 14},
+                           cbar_kws={'label': '-log10 p-value'})
+cbar = pval_heatmap2.collections[0].colorbar
+#cbar.set_ticks([-log10(0.05), -log10(0.01), -log10(0.001), -log10(0)])
+#cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
+#cbar.set_ticks(len(result), 0.001, update_ticks=True)
+#cbar.set_ticklabels(len(result), 0.001, update_ticks=True)
+cbar.ax.invert_yaxis()
