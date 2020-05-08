@@ -505,11 +505,18 @@ import scipy.stats
 scipy.stats.wilcoxon(computer, mouse)
 
 #rank plot
-time_data = pd.read_csv('Total time spent_stats.csv')
+time_data = pd.read_csv('Total time spent_stats_males.csv')
 time_data.describe()
 time_data.head()
-ax = sns.catplot(x='ranking',y='ratio first day',hue='Mice ID',kind='box',data=time_data)
+sns.set(font_scale=2) 
+x = np.random.normal(size=37)
+y = np.random.lognormal(size=37)
+fig, ax = plt.subplots()
+ax = sns.catplot(x='ranking',y='ratio first day', marker='s', color='k', label='big', size =8, alpha=0.5, linewidth=5, aspect=0.7,
+                 data=time_data)
 ax.fig.autofmt_xdate()
+xlabel('Ranking', fontsize=20)
+ylabel('Ratio of time spend in the computer over mouse quadrant', fontsize=20)
 
 #ratio plot 
 time_data = pd.read_csv('Total time spent_stats.csv')
@@ -520,33 +527,6 @@ ax.fig.autofmt_xdate()
 
 
 
-#plots
-dat=pd.read_excel(r'C:\Users\labuser\Documents\Python_EC\final_analysis.xlsx')
-from numpy import array
-plt.subplot(2,1,1)
-Object_type=dat['Object types']
-Total_distance_travelled=dat['Total distance travelled 1st trial']
-plt.bar(Object_type, Total_distance_travelled)
-plt.title('Total distance travelled in the object quadrant') 
-plt.xlabel('object types') 
-plt.ylabel('distance travelled in mm') 
-
-plt.subplot(2,1,2)
-Object_type=dat['Object types']
-Total_distance_travelled2=dat['Total distance travelled 2nd trial']
-plt.bar(Object_type, Total_distance_travelled2)
-plt.title('Total distance travelled in the object quadrant') 
-plt.xlabel('object types') 
-plt.ylabel('distance travelled in mm') 
-
-plt.subplot(1,1,1)
-Object_type=dat['Object types']
-Total_distance_travelled3=dat['Average total distance travelled']
-plt.bar(Object_type, Total_distance_travelled3)
-plt.title('Total distance travelled in the object quadrant') 
-plt.xlabel('object types') 
-plt.ylabel('distance travelled in mm') 
-
 #lineplot 
 x = [2, 4, 6]
 y = [1, 3, 5]
@@ -554,15 +534,6 @@ plt.plot(x, y)
 plt.show()
 
 #Number of attacks
-dat=pd.read_excel(r'C:\Users\labuser\Documents\Python_EC\full_analysis.xlsx')
-plt.subplot(2,1,1)
-Distance_ratio=dat['Distance ratio']  #the larger the more pronouced effect of object avoidance 
-Number_of_attacks=dat['Number of attacks']     
-plt.scatter(Number_of_attacks, Distance_ratio)
-plt.title('Correlation between social defeat and object avoidance') 
-plt.xlabel('Number of attacks') 
-plt.ylabel('Ratio of total distance travelled') 
-
 plt.subplot(2,1,2)
 Time_spent_ratio=dat['Time spent ratio']  #the larger the more pronouced effect of object avoidance 
 Number_of_attacks=dat['Number of attacks']     
@@ -572,14 +543,6 @@ plt.xlabel('Number of attacks')
 plt.ylabel('Ratio of total time spent') 
 
 #Fighting durations 
-dat=pd.read_excel(r'C:\Users\labuser\Documents\Python_EC\full_analysis.xlsx')
-plt.subplot(2,1,1)
-Distance_ratio=dat['Distance ratio']  #the larger the more pronouced effect of object avoidance 
-Fighting_durations=dat['Fighting durations']     
-plt.scatter(Fighting_durations, Distance_ratio)
-plt.title('Correlation between social defeat and object avoidance') 
-plt.xlabel('Fighting durations in secs') 
-plt.ylabel('Ratio of total distance travelled')
 
 plt.subplot(2,1,2)
 Time_spent_ratio=dat['Time spent ratio']  #the larger the more pronouced effect of object avoidance 
