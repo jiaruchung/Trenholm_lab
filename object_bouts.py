@@ -10,7 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def object_bouts(filename, bout_distance, framerate):
+def object_bouts(filename, bout_distance, framerate=30):
     """
     Args: filename: Path to an excel file with animal pos X and Y in cols 1 and 2 
         and fixed object XY position in remaining columns i.e X1,Y1,X2,Y2,X3,Y3 
@@ -56,19 +56,19 @@ def object_bouts(filename, bout_distance, framerate):
     
     ######## PLOTS #################################
     #Trajectory plot
-    fig=plt.figure()
+    fig,ax=plt.subplots()
     path, =plt.plot(animal_pos.iloc[:,0].values,animal_pos.iloc[:,1].values,c='grey') # ',' in var defnition allows us to store only 1st item(1d).This makes the handle 1d for easy grp legend calls 
     
     #Object points plot
     for i in range(0,len(obj_pos),2):
-        obj=plt.scatter(obj_pos[i],obj_pos[i+1],c='black')
+        obj=ax.scatter(obj_pos[i],obj_pos[i+1],c='black')
     
     #Bouts plot                                       
     bout=plt.scatter(bouts_xpos,bouts_ypos,c='r', alpha=0.5)
-    plt.legend([path,obj,bout],['path','object','bout'],loc='best')
-    plt.gca().set_yticks([])
-    plt.gca().set_xticks([])
-    plt.show()  
+    ax.legend([path,obj,bout],['path','object','bout'],loc='best')
+    ax.set_yticks([])
+    ax.set_xticks([])
+    fig.show()  
     
     return fig, bouts
 
