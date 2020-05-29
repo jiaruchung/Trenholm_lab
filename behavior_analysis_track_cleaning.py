@@ -4,26 +4,77 @@ Created on Mon Jan 13 13:45:53 2020
 
 @author: labuser
 """
-
+import numpy as np
 import pandas as pd
-from pylab import*
+#from pylab import*
 import matplotlib.pyplot as plt 
+import sys as os
 
-data=pd.read_excel(r'F:\training_videos\022020\rd1M2-m.xlsx')
-figure();plot(data['X'],data['Y'])
+
+filename=r'C:\Users\kasum\Downloads\Trenholm_lab-master\data.xlsx' #filepath
+position_data=pd.read_excel(filename) #read_excel file with position data
+animal_pos=position_data.iloc[:,:2]
+
+data=animal_pos
+dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); dx=np.concatenate(([0],dx))
+dy = np.array(animal_pos.iloc[:,1][1:])-np.array(animal_pos.iloc[:,1][:-1]); dy=np.concatenate(([0],dx))
+#dy = array(data['Y'][1:])-array(data['Y'][:-1]); dy=np.concatenate(([0],dy))
+
+
+hist_counts,hist_bins=np.histogram(abs(dx))
+counts=0
+for i in range(len(hist_counts)):
+    if counts < len(dx)*0.98:
+        counts+=hist_counts[i]
+        idx=i
+threshold=hist_bins[idx+1]
+
+for i in range(len(dx)):
+    if abs(dx[i])>threshold: #Tracking noise threshold
+        #data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+        data.loc[i]= np.NaN #data['Y'][i-1]
+
+
+hist_countsy,hist_binsy=np.histogram(abs(dy))
+countsy=0
+for i in range(len(hist_counts)):
+    if counts < len(dy)*0.98:
+        countsy+=hist_countsy[i]
+        idxy=i
+thresholdy=hist_binsy[idx+1]
+        
+for i in range(len(dy)):
+    if abs(dy[i])>threshold: #Tracking noise threshold
+        #data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+        data.loc[i]= np.NaN #data['Y'][i-1]
+       
+
+
+os.exit()
+
+
+'''
+abs_dx=abs(dx)
+        
+plt.hist(abs_dx,color='r')
+plt.hist(abs_dx[abs_dx < threshold])
+'''
+
+
 
 #Calculate distance between consecutive x,y points
-dx = array(data['X'][1:])-array(data['X'][:-1]); dx=np.concatenate(([0],dx))
-dy = array(data['Y'][1:])-array(data['Y'][:-1]); dy=np.concatenate(([0],dy))
+dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); dx=np.concatenate(([0],dx))
+dy = np.array(animal_pos.iloc[:,1][1:])-np.array(animal_pos.iloc[:,1][:-1]); dy=np.concatenate(([0],dx))
+#dy = array(data['Y'][1:])-array(data['Y'][:-1]); dy=np.concatenate(([0],dy))
 
 
 for i,x in enumerate(dx):
     if abs(dx[i])>30: #Tracking noise threshold
-        data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
+        #data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
         data['Y'][i]= NaN #data['Y'][i-1]
         
 fig,az=plt.subplots()
-plot(data['X'],data['Y'])
+plt.plot(data['X'],data['Y'])
 xmin=min(data['X']); xmax=max(data['X'])
 ymin=min(data['Y']); ymax=max(data['Y'])
 az.invert_yaxis()
@@ -37,15 +88,17 @@ dx=pd.DataFrame(dx).dropna()
 dy=pd.DataFrame(dy).dropna()
 
 
+
+
+
 #cal
 
-pos_x=array(data['X'])
-pos_y=array(data['Y'])
+pos_x=np.array(data['X'])
+pos_y=np.array(data['Y'])
 
 
 
 fr= 30 #camera frame rate
-
 #you may have to manually define the center of your environment for data with irregular path plots
 x_cen= (pos_x.max()+pos_x.min())/2 
 y_cen=(pos_y.max()+pos_y.min())/2
@@ -94,3 +147,36 @@ bo_right_totTime=len(bo_right_allDis)/fr  #total time in seconds
 bo_right_vel=bo_right_totDis/bo_right_totTime  #velocity in quadrant
 print('Dist in bottom-right quadrant = ', bo_right_totDis)
 print('Durations in bottom-right quadrant = ', bo_right_totTime)
+
+
+quad_coverage=pd.DataFrame(index=['up_left','up_right','buttom_left','buttom_right'], \
+             columns=['tot_dist','time_spent','velocity(unit)'])
+
+
+for i in range(4):
+    if i==0:
+        quad=(x_cen>pos_x) & (y_cen<pos_y)
+    elif i==1:
+        quad=(x_cen<pos_x) & (y_cen<pos_y)
+    elif i==2:
+        quad=(x_cen>pos_x) & (y_cen>pos_y)
+    else:
+        quad=(x_cen< pos_x) & (y_cen>pos_y)
+        
+    all_dist=dist[quad]        
+    tot_dist=sum(all_dist)
+    tot_time=len(all_dist)/fr 
+    vel=tot_dist/tot_time   
+    
+    
+    quad_coverage.iloc[i,0]=tot_dist #Extracting distance covered in quadrant
+    quad_coverage.iloc[i,1]=tot_time #Extracting distance covered in quadrant
+    quad_coverage.iloc[i,2]=vel #Extracting distance covered in quadrant
+
+        
+    
+    
+    up_left_totDis=sum(up_left_allDis) #distance covered
+    up_left_totTime=len(up_left_allDis)/fr  #total time in seconds
+    up_left_vel=up_left_totDis/up_left_totTime  #velocity in quadrant
+        

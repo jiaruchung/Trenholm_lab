@@ -2,15 +2,27 @@
 """
 Created on Fri May 29 05:01:58 2020
 
-@author: Kadjita Asumbisa & Jia-Ru Chang
+@author: Kadjita Asumbisa and Jia-Ru Chang
 """
 
 import numpy as np
 import pandas as pd
 
-filename=r'C:\Users\kasum\Downloads\Trenholm_lab-master\data.xlsx' #filepath
 
 def quad_analysis(filename,framerate=30):
+    """
+    Args: filename: Path to an excel file with animal pos X and Y in cols 1 and 2 
+        and fixed object XY position in remaining columns i.e X1,Y1,X2,Y2,X3,Y3 
+        corresponing to each object point. ALternatively, excel output from DeepLabcut
+        can simply be used as input. i.e 'C:/Users/kasum/Downloads/Trenholm_lab-master/data.xlsx'
+        
+        framerate: an int or float of the capture frame rate of the camera in Hz. i.e 30 
+    
+    Returns: 
+        fig: a figure showing trajectory plot, object points and detected bouts
+        quad_coverage: dataframe of computed total distance,time spend and velocity for each quadrant
+        
+    """    
     position_data=pd.read_excel(filename) #read_excel file with position data
     animal_pos=position_data.iloc[:,:2]
     
@@ -29,8 +41,7 @@ def quad_analysis(filename,framerate=30):
     dist = np.concatenate(([0],np.sqrt(dx**2+dy**2)))  #computes the distance between two consecuitive x,y points
     
     quad_coverage=pd.DataFrame(index=['up_left','up_right','buttom_left','buttom_right'], \
-                 columns=['tot_dist','time_spent','velocity(unit)'])
-    
+                 columns=['tot_dist','time_spent','velocity(mm/s)']) 
     
     for i in range(4):
         if i==0:
@@ -54,6 +65,8 @@ def quad_analysis(filename,framerate=30):
     To Do: merge line 45-52
     '''
     return quad_coverage
+
+filename=r'C:\Users\kasum\Downloads\Trenholm_lab-master\data.xlsx' #filepath
 
 quad_analysis(filename)
 
