@@ -15,7 +15,51 @@ import seaborn as sns
 import glob
 
 
+<<<<<<< Updated upstream
 #flipping functions of the heatmaps 
+=======
+###############################################################################
+
+
+
+#automatically generating heatmap
+for idx, file in enumerate(filename_list):
+
+        pos=pd.read_excel(file)
+
+    name=filename_list[idx].split('-')[-1].split('.')[-2]
+        if name=='ur':
+            _,mur=occu_heatmap(pos)
+            flipped_from_ur=ur(mur)
+            urs.append(flipped_from_ur) 
+        elif name=='bl':
+            _,mbl=occu_heatmap(pos)
+            flipped_from_bl=bl(mbl)
+            urs.append(flipped_from_bl)
+        elif name=='br':
+            _,mbr=occu_heatmap(pos)
+            flipped_from_br=br(mbr)
+            urs.append(flipped_from_br)
+        elif name=='ul':
+            _,mul=occu_heatmap(pos)
+            static=ul(mul)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> Stashed changes
 def ur(m): 
     first=np.flip(m,axis=1)
     return first       
@@ -29,6 +73,9 @@ def br(m):
 def ul(m):
     first = m
     return first 
+
+
+
 
 def occu_heatmap(pos):  
     xpos=pos['X']
