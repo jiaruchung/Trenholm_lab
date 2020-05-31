@@ -12,32 +12,35 @@ import os
 def quad_analysis(filespath,framerate=30):
     """
     Args: filepaths: Path to folder containing all animals pos .xlsx data files ( X & Y corresponding to cols 1&2) 
-        files in filepaths must be name in the following format (animalId_objectLocation_condition_.xlsx)
-        i.e 0_ur_exp_.xlsx 
+        files in filepaths must be name in the following format (animalId_sex_objectLocation_condition_.xlsx)
+        i.e 0_m_ur_exp_.xlsx 
         framerate: an int or float of the capture frame rate of the camera in Hz. i.e 30 
     
     Output: 
         writes quad_coverage(aniaml id, condition, object location and coverage distance(mm), duration(s) and 
-        velocity(mm/s) of all animals for each quadrant)to csv file in filepaths dir        
+        velocity(mm/s) of all animals for each quadrant)to csv file in filepaths dir
+
+    Returns:
+        Saved Output 
     """    
     
     files=glob.glob(os.path.join(filespath,'*.xlsx'))
     ids=[int(file.split('\\')[-1].split('_')[0]) for idx,file in enumerate(files)]
 
-    quad_coverage=pd.DataFrame(index=ids,columns=['cond','object_loc','object_id','ul_dist', 'ul_dur',\
+    quad_coverage=pd.DataFrame(index=ids,columns=['cond','sex','object_loc','ul_dist', 'ul_dur',\
                        'ul_vel','ur_dist', 'ur_dur','ur_vel', \
                               'bl_dist', 'bl_dur','bl_vel','br_dist', 'br_dur','br_vel']) 
     
     for idx,file in enumerate(files): 
         mouse_id=int(file.split('\\')[-1].split('_')[0])
-        obj_loc=file.split('\\')[-1].split('_')[1]
-        condition=file.split('\\')[-1].split('_')[2]
-        '''define obj id'''
+        sex=file.split('\\')[-1].split('_')[1]
+        obj_loc=file.split('\\')[-1].split('_')[2]
+        condition=file.split('\\')[-1].split('_')[3]
+
         
-        
-        quad_coverage.loc[mouse_id,'object_id']=#comp or mouse
-        quad_coverage.loc[mouse_id,'object_loc']=obj_loc
         quad_coverage.loc[mouse_id,'cond']=condition
+        quad_coverage.loc[mouse_id,'sex']=sex
+        quad_coverage.loc[mouse_id,'object_loc']=obj_loc
  
         
         position_data=pd.read_excel(file) 
@@ -57,9 +60,6 @@ def quad_analysis(filespath,framerate=30):
         dy = pos_y[1:]-pos_y[:-1]
         dist = np.concatenate(([0],np.sqrt(dx**2+dy**2)))  #computes the distance between two consecuitive x,y points
         
-
-        
-
         computed_vals=[]
         for i in range(4):
             if i==0:
@@ -80,14 +80,10 @@ def quad_analysis(filespath,framerate=30):
             
         quad_coverage.iloc[mouse_id,3:]=computed_vals
         
-    """
-    To DO
-    Add sex to vars
-    """
-    
+
     quad_coverage.to_csv(filespath+'\quad_dat.csv')
-
-
+    
+    return quad_coverage
 
 filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master'
 
