@@ -45,6 +45,7 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
         dy = np.array(animal_pos.iloc[:,1][1:])-np.array(animal_pos.iloc[:,1][:-1]); 
     
         plt.figure()
+        #### Raw Data Plot#################
         plt.suptitle('Mouse_'+file.split('\\')[-1].split('_')[0]+' Path Plots')
         ax=plt.subplot(211) 
         ax.set_title('Raw_data')      
@@ -69,10 +70,10 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
                     animal_pos.loc[i]= np.NaN
         
         #Since we are using distance to determine cut offs, we can use any axis and extend to the other
-                if abs(dy[i])>threshold: #Tracking noise threshold
+                if abs(dy[i])>threshold: #Here we are using threshold determined from x on line 62
                     animal_pos.loc[i]= np.NaN
      
-                
+        #### Processed Data plot##############        
         ax2=plt.subplot(212)       
         ax2.plot(animal_pos.iloc[:,0],animal_pos.iloc[:,1])
         ax2.set_title('Processed_data')
