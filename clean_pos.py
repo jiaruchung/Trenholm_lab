@@ -35,7 +35,7 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
         figs: showing the raw and processed path plots for each animal 
         animal_pos: processed (clean) .xlsx version of each file saved to clean_filespath dir with original filename      
     """
-    files,idx=get_files_info(raw_filespath)
+    files,_=get_files_info(raw_filespath) #function call to return only first return variable
     
     for idx, file in enumerate(files):
         position_data=pd.read_excel(file) #read_excel file with position data
