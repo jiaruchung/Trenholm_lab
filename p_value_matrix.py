@@ -135,17 +135,15 @@ def collect_samples(urs):
 urs1_samples_by_cell = collect_samples(urs1)
 urs2_samples_by_cell = collect_samples(urs2)              
 
-
-# apply the rank_sum test to animal's distance travelled between 2 conditions 
+# generate a list for the rank_sum test results between two conditions in each bin 
 ranksum_test_on_cells = []
 
 for i in range(BINS):
     ranksum_test_on_cells.append([])
     for j in range(BINS):
         ranksum_test_on_cells[i].append(ranksums(urs1_samples_by_cell[i][j], urs2_samples_by_cell[i][j]))
-
-
-# generate a list of rank_sum test results between two conditions in each bin       
+        # apply the rank_sum test to animal's distance travelled between 2 conditions 
+      
 result = list(map(lambda row: list(map(lambda element: element.pvalue,
                                        row)),
                   ranksum_test_on_cells))
