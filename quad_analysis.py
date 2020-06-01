@@ -2,7 +2,7 @@
 """
 Created on Fri May 29 05:01:58 2020
 
-@author: Kadjita Asumbisa and Jia-Ru Chang
+@author: Kadjita Asumbisa and Jia-Ru Chung
 """
 import glob
 import numpy as np

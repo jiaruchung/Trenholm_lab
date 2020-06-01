@@ -2,7 +2,7 @@
 """
 Created on Sun May 24 21:43:23 2020
 
-@author: Kadjita Asumbisa and Jia-Ru Chang
+@author: Kadjita Asumbisa and Jia-Ru Chung
 """
 
 from scipy.spatial import distance
