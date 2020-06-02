@@ -55,7 +55,7 @@ def align_allMats(filespath, show_fig=True):
     """ 
     
     #Ask user to confirm if filespath is set to folder with processed (clean) files
-    clean_files=input('Is filespath set to the clean files directory?: (y/n) ').lower()
+    clean_files=input('Is filespath set to the clean files directory (y/n)?: ').lower()
     if clean_files=='y':
         
         print('realigning all object positions to upper left quadrant...')
@@ -111,16 +111,14 @@ def align_allMats(filespath, show_fig=True):
         print('set filespath to folder with clean excel files before running this function')
 
 
-filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master'
-
-data=align_allMats(filespath, show_fig=True)
+#filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master'
 
 #collect the realigned occupancy matrices generated in for two conditions
 cond1_filespath= r'C:\Users\kasum\Downloads\Trenholm_lab-master' #example path to condtion1  .xlsx files
-cond1 = align_allMats(cond1_filespath, show_fig=False)
+cond1 = align_allMats(cond1_filespath)
 
 cond2_filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master' #example path to condtion2  .xlsx files
-cond2 = align_allMats(cond2_filespath, show_fig=False)
+cond2 = align_allMats(cond2_filespath)
 
 
 
@@ -151,7 +149,6 @@ def collect_samples(aligned_data):
 
 cond1_samples = collect_samples(cond1)
 cond2_samples = collect_samples(cond2)    
-
 
 
 # generate a list for the rank_sum test results between two conditions in each bin
