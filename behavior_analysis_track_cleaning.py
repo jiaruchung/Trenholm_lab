@@ -6,48 +6,77 @@ Created on Mon Jan 13 13:45:53 2020
 """
 import numpy as np
 import pandas as pd
-#from pylab import*
 import matplotlib.pyplot as plt 
-import sys as os
+import os
+import glob
+
+def get_files_info(filespath):
+    """
+    Args: filepaths: Path to folder containing all animals pos .xlsx data files ( X & Y corresponding to cols 1&2)
+    
+    Returns:
+        files: paths to all .xlsx files in filespath dir
+        ids: index of each animal_id stored as a list  
+    """
+    files=glob.glob(os.path.join(filespath,'*.xlsx')) #storing the dir of all .xlsx files input dir
+    ids=[int(file.split('\\')[-1].split('_')[0]) for idx,file in enumerate(files)] #Extracting animal_ids to create index on line 37
+    return files,ids
 
 
-filename=r'C:\Users\kasum\Downloads\Trenholm_lab-master\data.xlsx' #filepath
-position_data=pd.read_excel(filename) #read_excel file with position data
-animal_pos=position_data.iloc[:,:2]
+filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master\dirty' #filepath
 
-data=animal_pos
-dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); dx=np.concatenate(([0],dx))
-dy = np.array(animal_pos.iloc[:,1][1:])-np.array(animal_pos.iloc[:,1][:-1]); dy=np.concatenate(([0],dx))
+
+
+#def clean_pos_data(filespath):
+
+#filename=r'C:\Users\kasum\Downloads\Trenholm_lab-master\dirty\data.xlsx' #filepath
+
+    
+files,idx=get_files_info(filespath)
+
+for idx, file in enumerate(files):
+    position_data=pd.read_excel(file) #read_excel file with position data
+    animal_pos=position_data.iloc[:,:2]
+
+    dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); 
+#dx=np.concatenate(([0],dx))
+    dy = np.array(animal_pos.iloc[:,1][1:])-np.array(animal_pos.iloc[:,1][:-1]); 
+#dy=np.concatenate(([0],dx))
 #dy = array(data['Y'][1:])-array(data['Y'][:-1]); dy=np.concatenate(([0],dy))
-
-
-hist_counts,hist_bins=np.histogram(abs(dx))
-counts=0
-for i in range(len(hist_counts)):
-    if counts < len(dx)*0.98:
-        counts+=hist_counts[i]
-        idx=i
-threshold=hist_bins[idx+1]
-
-for i in range(len(dx)):
-    if abs(dx[i])>threshold: #Tracking noise threshold
-        #data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
-        data.loc[i]= np.NaN #data['Y'][i-1]
-
-
-hist_countsy,hist_binsy=np.histogram(abs(dy))
-countsy=0
-for i in range(len(hist_counts)):
-    if counts < len(dy)*0.98:
-        countsy+=hist_countsy[i]
-        idxy=i
-thresholdy=hist_binsy[idx+1]
-        
-for i in range(len(dy)):
-    if abs(dy[i])>threshold: #Tracking noise threshold
-        #data['X'][i]=data['X'][i-1]# NaN#data['X'][i-1]  #Assign NaN to position x if computed distance exceeds threshold
-        data.loc[i]= np.NaN #data['Y'][i-1]
+    thres=0.95
+    ax=plt.subplot(211) 
+    ax.set_title('Raw_data')      
+    ax.plot(animal_pos.iloc[:,0],animal_pos.iloc[:,1])
        
+    hist_counts,hist_bins=np.histogram(abs(dx))
+    counts=0
+    for i in range(len(hist_counts)):
+        if counts <= len(dx)*thres:
+            counts+=hist_counts[i]
+            idx=i
+    threshold=hist_bins[idx+1]
+    
+    for i in range(len(dx)):
+        if abs(dx[i])>threshold: #Tracking noise threshold
+            animal_pos.loc[i]= np.NaN #data['Y'][i-1]
+    
+    
+    hist_countsy,hist_binsy=np.histogram(abs(dy))
+    countsy=0
+    for i in range(len(hist_counts)):
+        if counts <= len(dy)*thres:
+            countsy+=hist_countsy[i]
+            idxy=i
+    thresholdy=hist_binsy[idx+1]
+            
+    for i in range(len(dy)):
+        if abs(dy[i])>thresholdy: #Tracking noise threshold
+            animal_pos.loc[i]= np.NaN 
+            
+    animal_pos.dropna()
+    ax2=plt.subplot(212)       
+    ax2.plot(animal_pos.iloc[:,0],animal_pos.iloc[:,1])
+    ax2.set_title('Processed_data')       
 
 
 os.exit()

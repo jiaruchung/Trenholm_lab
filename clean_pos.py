@@ -55,16 +55,16 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
            
         hist_counts,hist_bins=np.histogram(abs(dx))
         counts=0
-        skip_x=True
+        jumps_in_tracking=False
         for i in range(len(hist_counts)):
             if counts <= len(dx)*thres:
                 counts+=hist_counts[i]
                 id_x=i
                 threshold=hist_bins[id_x+1]
-                skip_x=False
+                jumps_in_tracking=True
         
-        #if no jumps in tracking, enter this loop        
-        if not skip_x:  #if it is not true run the loop
+        #if jumps in tracking, enter this loop        
+        if jumps_in_tracking:  #if it is not true run the loop
             for i in range(len(dx)):
                 if abs(dx[i])>threshold: #Tracking noise threshold
                     animal_pos.loc[i]= np.NaN
@@ -72,6 +72,8 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
         #Since we are using distance to determine cut offs, we can use any axis and extend to the other
                 if abs(dy[i])>threshold: #Here we are using threshold determined from x on line 62
                     animal_pos.loc[i]= np.NaN
+        else:
+            continue
      
         #### Processed Data plot##############        
         ax2=plt.subplot(212)       
