@@ -149,7 +149,7 @@ def quad_analysis(filespath,framerate=30):
         
         computed_vals=[] #empty list for holding computed total distance, total time and velocity in each quadrant
         for i in range(4):
-            #Logical indexing for identifying differemt quadrants:
+            #Logical indexing for identifying differemt quadrants based on relative loc referenced from center on environment
             if i==0:
                 quad=(x_cen>pos_x) & (y_cen<pos_y)
             elif i==1:
@@ -297,7 +297,7 @@ def occu_plots(filespath):
     fig,ax=plt.subplots()
     rows=len(files)//2
     for i,file in enumerate(files):
-        mouse_id=file.split('\\')[-1].split('_')[0]
+        mouse_info=file.split('\\')[-1].split('.')[0] #splits and assigns needed info to var
         position=pd.read_excel(file) #reading position file into a pandas dataframe
         animal_pos=position.iloc[:,:2] #extracting posx and y which corresponds to cols 1&2
         xpos=animal_pos.iloc[:,0]
@@ -307,21 +307,21 @@ def occu_plots(filespath):
         plt.plot(xpos,ypos)
         plt.gca().set_yticks([])
         plt.gca().set_xticks([])
-        plt.title('Mouse'+mouse_id) 
+        plt.title('Mouse_info: '+mouse_info) 
         fig.show()
         
         
     #PLOT2: Trajecory heatmap plot
     fig1,ax1=plt.subplots()
     for i,file in enumerate(files):
-        mouse_id=file.split('\\')[-1].split('_')[0]
+        mouse_info=file.split('\\')[-1].split('.')[0] 
         plt.subplot(rows,(len(files)//2)+1,i+1)
         position=pd.read_excel(file) 
         animal_pos=position.iloc[:,:2] 
-        occu=occu_matrix(animal_pos)  #fxn call
+        occu=occu_matrix(animal_pos)  #fxn call to generate occupancy matrix
         occu=gaussian_filter(occu,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
         
-        plt.title('Mouse'+mouse_id) # the str attachement extracts the number of animals in the list
+        plt.title('Mouse_info: '+mouse_info)
         heatmap=plt.imshow(occu, cmap='jet', interpolation='bilinear') 
     
         plt.gca().set_yticks([])
