@@ -263,7 +263,6 @@ def object_bouts(filespath, bout_distance=50, sample_fig=True, framerate=30):
 
     return bouts_data
 
-
 def occu_matrix(animal_pos,bins=10):
     """
     Args: 
@@ -280,6 +279,62 @@ def occu_matrix(animal_pos,bins=10):
     occu_mat, _, _ = np.histogram2d(xpos, ypos, [xbins,ybins]) #creating a 2d matrix of xpos and ypos defined by bins sizes
     occu_mat= occu_mat[::-1] #flips the matrix to align with original path plot
     return occu_mat
+
+
+
+def occu_plots(filespath):
+    """
+    Args: 
+        filespath: Path to folder containing all animals pos .xlsx data files ( X & Y corresponding to cols 1&2)
+    
+    Outputs & Returns: 
+        fig: showing trajectories of all animals in a fig subplots
+        fig1: showing heatmaps of the trajectory plots
+    """
+    files,ids=get_files_info(filespath)
+    
+    #PLOT1: Trajectory line plot
+    fig,ax=plt.subplots()
+    rows=len(files)//2
+    for i,file in enumerate(files):
+        mouse_id=file.split('\\')[-1].split('_')[0]
+        position=pd.read_excel(file) #reading position file into a pandas dataframe
+        animal_pos=position.iloc[:,:2] #extracting posx and y which corresponds to cols 1&2
+        xpos=animal_pos.iloc[:,0]
+        ypos=animal_pos.iloc[:,1]
+        
+        plt.subplot(rows,(len(files)//2)+1,i+1) 
+        plt.plot(xpos,ypos)
+        plt.gca().set_yticks([])
+        plt.gca().set_xticks([])
+        plt.title('Mouse'+mouse_id) 
+        fig.show()
+        
+        
+    #PLOT2: Trajecory heatmap plot
+    fig1,ax1=plt.subplots()
+    for i,file in enumerate(files):
+        mouse_id=file.split('\\')[-1].split('_')[0]
+        plt.subplot(rows,(len(files)//2)+1,i+1)
+        position=pd.read_excel(file) 
+        animal_pos=position.iloc[:,:2] 
+        occu=occu_matrix(animal_pos)  #fxn call
+        occu=gaussian_filter(occu,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
+        
+        plt.title('Mouse'+mouse_id) # the str attachement extracts the number of animals in the list
+        heatmap=plt.imshow(occu, cmap='jet', interpolation='bilinear') 
+    
+        plt.gca().set_yticks([])
+        plt.gca().set_xticks([])
+        cbar=fig1.colorbar(heatmap,orientation='vertical') #color bar legend
+        cbar.ax.get_xticks()
+        cbar.set_ticks([])
+        cbar.ax.set_ylabel('Occupancy')
+        min_=plt.text(11,9.5,'min')
+        max_=plt.text(11,-0.3,'max')
+        fig1.show()
+
+    return fig,fig1
 
 
 def align_allMats(filespath, show_fig=True):
@@ -442,5 +497,5 @@ cond2 = align_allMats(cond2_filespath)
 cond1_samples = collect_samples(cond1)
 cond2_samples = collect_samples(cond2)    
 
-
+###occu plots= we can use gridspec matplot lib to make it easy
 
