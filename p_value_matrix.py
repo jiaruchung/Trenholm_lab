@@ -17,6 +17,7 @@ import glob
 #number of bin in the arena 
 BINS = 10 
 
+<<<<<<< Updated upstream
 def occu_heatmap(pos): 
     """
     Args: 
@@ -25,6 +26,31 @@ def occu_heatmap(pos):
         q: display of square bins showing bi-dimensional histogram of X and Y positions
         occu: bi-dimensional histogram of X and Y positions
     """
+=======
+#flipping functions to align the corner where the object was located to the upper left. Four corners (ur: upper right, bl: bottom left, br: bottom right, ul: upper left).  
+def ur(m): 
+    first=np.flip(m,axis=1)
+    return first       
+def bl(m): 
+    first=np.flip(m,axis=0)
+    return first         
+def br(m):
+    first=np.flip(m,axis=0)
+    sec=np.flip(first,axis=1)
+    return sec  
+def ul(m):
+    first = m
+    return first 
+
+#merge the flipping functions into one so t
+def flip_mat(m):
+    if
+    
+    
+    
+    
+
+def occu_heatmap(pos):  
     xpos=pos['X']
     ypos=pos['Y']
     xbins = np.linspace(xpos.min(), xpos.max()+1e-6, BINS+1)
@@ -119,24 +145,24 @@ urs1 = get_urs(condition_1_filenames)
 urs2 = get_urs(condition_2_filenames)
 
 
-def collect_samples(urs):
+def collect_samples(urs,bins=10):
     """
     Args: 
         urs: combinations of heatmaps aligned to the upper-left corner resulted by the get_urs function
-        BINS: number of bin in each row/col 
+        bins: number of bin in each row/col 
     
     Returns: 
         cells: the resulting big matrix (10 x 10) that will accomodate values from all the data
     """
     cells = []
-    for i in range(BINS):
+    for i in range(bins):
         cells.append([])
-        for j in range(BINS):
+        for j in range(bins):
             cells[i].append([])
 
     for occu in enumerate(urs):
-        for i in range(BINS):
-            for j in range(BINS):
+        for i in range(bins):
+            for j in range(bins):
                 cells[i][j].append(occu[1][i][j])
     return cells
 
