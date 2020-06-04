@@ -30,10 +30,10 @@ def get_files_info(filespath):
     return files,ids
 
 
-def clean_pos_data(filespath,thres=.95):
+def clean_pos_data(filespath,thres=.90):
     """
     Args: raw_filespath: directory containing .xlsx raw data files
-        thres: threshold for dermining the distribution of data to keep during cleaning
+        thres: threshold for dermining the distribution of data to keep during cleaning. Ideally thus must be manually adjusted for each plot
         
     Outputs:
         figs: showing the raw and processed path plots for each animal 
@@ -118,7 +118,7 @@ def quad_analysis(filespath,framerate=30):
         velocity(mm/s) of all animals for each quadrant)to csv file in filepaths dir
 
     Returns:
-        Saved Outputin a pandas dataframe  
+        Saved Output in a pandas dataframe  
     """    
     filespath=filespath+'\cleanData' #change directory to clean folder
     
@@ -486,7 +486,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 
 #cond1
 filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond1(non-mouse)'
-clean_pos_data(filespath, thres=.99)
+clean_pos_data(filespath, thres=.90)
 quad_analysis(filespath)
 occu_plots(filespath)
 aligned_data_cond1=align_allMats(filespath, show_fig=True)
@@ -498,7 +498,7 @@ object_bouts(obj_bouts_path,60)
 
 #con2
 filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond2(mouse)'
-clean_pos_data(filespath, thres=.99)
+clean_pos_data(filespath, thres=1)
 quad_analysis(filespath) 
 occu_plots(filespath)
 aligned_data_cond2=align_allMats(filespath, show_fig=True)
