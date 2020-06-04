@@ -53,7 +53,7 @@ def clean_pos_data(filespath,thres=.90):
     for idx, file in enumerate(files):
         file_info=str('\\')+ file.split('\\')[-1]
         position_data=pd.read_excel(file) #read_excel file with position data
-        animal_pos=position_data.loc[:,('X','Y')]
+        animal_pos=position_data.loc[:,('X','Y')].dropna
         
         #computing change in x and y
         dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); 
@@ -290,7 +290,7 @@ def occu_matrix(animal_pos,bins=10):
     xbins = np.linspace(xpos.min(), xpos.max()+1e-6, bins+1)
     ybins = np.linspace(ypos.min(), ypos.max()+1e-6, bins+1)
     occu_mat, _, _ = np.histogram2d(xpos, ypos, [xbins,ybins]) #creating a 2d matrix of xpos and ypos defined by bins sizes
-    occu_mat= occu_mat[::-1] #flips the matrix to align with original path plot
+    occu_mat=np.rot90(occu_mat) #rotate to realign matrix to original plot by correcting for the arrangment of the bins
     return occu_mat
 
 
@@ -299,43 +299,42 @@ def occu_plots(filespath):
     Args: 
         filespath: Path to folder containing all animals pos .xlsx data files ( X & Y corresponding to cols 1&2)
     
-    Outputs & Returns: 
-        fig: showing trajectories of all animals in a fig subplots
-        fig1: showing heatmaps of the trajectory plots
+    Output: 
+        fig: line showing trajectory plots
+        fig1: showing heatmaps of the trajectory plots in fig
     """
     filespath=filespath+'\cleanData' #change directory to clean folder
 
     files,ids=get_files_info(filespath)
-    
-    #PLOT1: Trajectory line plot
+     #PLOT1: Trajectory line plot
     fig,ax=plt.subplots()
     rows=len(files)//2
     for i,file in enumerate(files):
-        mouse_info=file.split('\\')[-1].split('.')[0] #splits and assigns needed info to var
+        mouse_id=file.split('\\')[-1].split('.')[0]
         position=pd.read_excel(file) #reading position file into a pandas dataframe
         animal_pos=position.iloc[:,:2] #extracting posx and y which corresponds to cols 1&2
         xpos=animal_pos.iloc[:,0]
         ypos=animal_pos.iloc[:,1]
         
-        plt.subplot(rows,(len(files)//2)+2,i+1) 
+        plt.subplot(rows,(len(files)//2)+1,i+1) 
         plt.plot(xpos,ypos)
         plt.gca().set_yticks([])
         plt.gca().set_xticks([])
-        plt.title('Mouse_info: '+mouse_info) 
+        plt.title('Mouse'+mouse_id) 
         fig.show()
         
         
     #PLOT2: Trajecory heatmap plot
     fig1,ax1=plt.subplots()
     for i,file in enumerate(files):
-        mouse_info=file.split('\\')[-1].split('.')[0] 
-        plt.subplot(rows,(len(files)//2)+2,i+1)
+        mouse_id=file.split('\\')[-1].split('.')[0]
+        plt.subplot(rows,(len(files)//2)+1,i+1)
         position=pd.read_excel(file) 
         animal_pos=position.iloc[:,:2] 
-        occu=occu_matrix(animal_pos)  #fxn call to generate occupancy matrix
+        occu=occu_matrix(animal_pos)  #fxn call
         occu=gaussian_filter(occu,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
         
-        plt.title('Mouse_info: '+mouse_info)
+        plt.title('Mouse'+mouse_id) # the str attachement extracts the number of animals in the list
         heatmap=plt.imshow(occu, cmap='jet', interpolation='bilinear') 
     
         plt.gca().set_yticks([])
@@ -349,6 +348,7 @@ def occu_plots(filespath):
         fig1.show()
 
     return fig,fig1
+
 
 
 def align_allMats(filespath, show_fig=True):
@@ -486,7 +486,7 @@ import sys
 sys.exit()  #Allows you to run all functions before running test 
 
 #cond1
-filespath=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\cond1(non-mouse)'
+filespath=r'C:\Users\kasum\Documents\Trenholm_lab\COMP598_data_files\con1(non-mouse)'
 clean_pos_data(filespath, thres=.9)
 quad_analysis(filespath)
 occu_plots(filespath)
@@ -494,11 +494,11 @@ aligned_data_cond1=align_allMats(filespath, show_fig=True)
 cond1_samples=collect_samples(aligned_data_cond1)
 
 #object_bouts
-obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\object_boutsFile' #it is is the only file with the required data
+obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' #it is is the only file with the required data
 object_bouts(obj_bouts_path,60)
 
 #con2
-filespath=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\cond2(mouse)'
+filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\con2(mouse)'
 clean_pos_data(filespath, thres=1)
 quad_analysis(filespath) 
 occu_plots(filespath)
