@@ -493,7 +493,7 @@ aligned_data_cond1=align_allMats(filespath, show_fig=True)
 cond1_samples=collect_samples(aligned_data_cond1)
 
 #object_bouts
-obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' 
+obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' #it is is the only file with the required data
 object_bouts(obj_bouts_path,60)
 
 #con2
@@ -507,9 +507,3 @@ cond2_samples=collect_samples(aligned_data_cond2)
 
 #cond1 vs cond2
 result=ranksum_pval_matrix(cond1_samples,cond2_samples)
-
-
-
-  
-
-###occu plots= we can use gridspec matplot lib to make it easy
