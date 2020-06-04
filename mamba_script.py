@@ -30,22 +30,30 @@ def get_files_info(filespath):
     return files,ids
 
 
-
-def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
+def clean_pos_data(filespath,thres=.95):
     """
     Args: raw_filespath: directory containing .xlsx raw data files
-        clean_filespath: directory to write processed files to
         thres: threshold for dermining the distribution of data to keep during cleaning
         
     Outputs:
         figs: showing the raw and processed path plots for each animal 
         animal_pos: processed (clean) .xlsx version of each file saved to clean_filespath dir with original filename      
     """
-    files,_=get_files_info(raw_filespath) #function call to return only first return variable
+    new_directory='\cleanData'
+    #Creates a the new directory if it doesnt exist, else the code passes and executes the remaining lines
+    try:
+        os.mkdir(filespath+new_directory) #Create a new directory to store processed files
+        print('Creating new directory to write processed files to...')
+    except:
+        print('Directory for writing processed files already exist')
+        pass
+
+    files,_=get_files_info(filespath) #function call to return only first return variable
     
     for idx, file in enumerate(files):
+        file_info=str('\\')+ file.split('\\')[-1]
         position_data=pd.read_excel(file) #read_excel file with position data
-        animal_pos=position_data.iloc[:,:2]
+        animal_pos=position_data.loc[:,('X','Y')]
         
         #computing change in x and y
         dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); 
@@ -93,7 +101,10 @@ def clean_pos_data(raw_filespath, clean_filespath, thres=.95):
         ax2.set_yticks([])
         
         animal_pos.dropna().reset_index(drop=True)# resetting may be redundant bcos of next line check on it 
-        animal_pos.to_excel(clean_filespath+str('\\')+ file.split('\\')[-1], index=False)
+        print('writing processed file '+ file_info +' to cleanData directory...')
+        animal_pos.to_excel(filespath+new_directory+file_info, index=False) #save file to new directory
+
+
          
 def quad_analysis(filespath,framerate=30):
     """
@@ -109,7 +120,8 @@ def quad_analysis(filespath,framerate=30):
     Returns:
         Saved Outputin a pandas dataframe  
     """    
-
+    filespath=filespath+'\cleanData' #change directory to clean folder
+    
     files,ids=get_files_info(filespath) #calls external fxn to get files info
 
     #creating pandas dataframe to hold data
@@ -175,7 +187,7 @@ def quad_analysis(filespath,framerate=30):
     return quad_coverage
 
 
-      
+
 def object_bouts(filespath, bout_distance=50, sample_fig=True, framerate=30):
     """
     Args: filepaths: Path to folder containing all animals pos .xlsx data files ( X & Y corresponding to cols 1&2)
@@ -263,6 +275,7 @@ def object_bouts(filespath, bout_distance=50, sample_fig=True, framerate=30):
 
     return bouts_data
 
+
 def occu_matrix(animal_pos,bins=10):
     """
     Args: 
@@ -281,7 +294,6 @@ def occu_matrix(animal_pos,bins=10):
     return occu_mat
 
 
-
 def occu_plots(filespath):
     """
     Args: 
@@ -291,6 +303,8 @@ def occu_plots(filespath):
         fig: showing trajectories of all animals in a fig subplots
         fig1: showing heatmaps of the trajectory plots
     """
+    filespath=filespath+'\cleanData' #change directory to clean folder
+
     files,ids=get_files_info(filespath)
     
     #PLOT1: Trajectory line plot
@@ -348,63 +362,58 @@ def align_allMats(filespath, show_fig=True):
         alingned_to_ul: occupancy matrix of all animals in dir where object loc aligned to the upper-left quadrant 
     """ 
     
-    #Ask user to confirm if filespath is set to folder with processed (clean) files
-    clean_files=input('Is filespath set to the clean files directory (y/n)?: ').lower()
-    if clean_files=='y':
-        
-        print('realigning all object positions to upper left quadrant...')
-        files,_=get_files_info(filespath) #function call to return all file directories
-        
-        aligned_to_ul=[] #Initializing an empty list to hold realigned position matrix 
-        for file in files:
-            position=pd.read_excel(file) #reading position file into a pandas dataframe
-            animal_pos=position.iloc[:,:2] #extracting posx and y which corresponds to cols 1&2
+    filespath=filespath+'\cleanData' #change directory to clean folder
     
-            object_loc=file.split('\\')[-1].split('_')[2] #Extracting object location from string
-            
-            #flip position matrix depending on object loc to ensure that all objects locs across animals are aligned to upper left quadrant 
-            if object_loc=='ur': 
-                ur_matrix=occu_matrix(animal_pos) #fxn call to compute occupancy matrix 
-                flipped_from_ur=np.flip(ur_matrix,axis=1) #flip on second axis
-                aligned_to_ul.append(flipped_from_ur) 
-            elif object_loc=='bl':
-                bl_matrix=occu_matrix(animal_pos)
-                flipped_from_bl=np.flip(bl_matrix,axis=0)
-                aligned_to_ul.append(flipped_from_bl)
-            elif object_loc=='br':
-                br_matrix=occu_matrix(animal_pos)
-                flipped_from_br=np.flip(br_matrix,axis=0) #flip on first axis
-                flipped_from_br=np.flip(flipped_from_br,axis=1) #flip on second axis
-                aligned_to_ul.append(flipped_from_br) #append the after second flip
-            else:
-                ref_matrix=occu_matrix(animal_pos) #ul: arbitrarily pre-determined as reference object location for realignment 
-                aligned_to_ul.append(ref_matrix)
-                
-        #### ALIGNED HEATMAP PLOT #########
-        if show_fig:
-            #initializing matrix of zeros with the shape of the dimensions of a single position matrix to hold the sum of all matrices across animals
-            data=np.zeros(np.shape(aligned_to_ul)[1:3])
-            for i in range(len(aligned_to_ul)):
-                data+=aligned_to_ul[i]     #adds corresponding cells for all pos matrix across animals
-            data=gaussian_filter(data,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
-            fig,ax=plt.subplots()
-            plt.title('Object Aligned to Upper Left Quadrant (N='+str(len(aligned_to_ul))+')') # the str attachement extracts the number of animals in the list
-            heatmap=plt.imshow(data, cmap='jet', interpolation='bilinear') 
-            ax.set_yticks([])
-            ax.set_xticks([])
-            cbar=fig.colorbar(heatmap,orientation='vertical') #color bar legend
-            cbar.ax.get_xticks()
-            cbar.set_ticks([])
-            cbar.ax.set_ylabel('Occupancy')
-            min_=plt.text(11,9.5,'min')
-            max_=plt.text(11,-0.3,'max')
-            fig.show()
-            
-        return aligned_to_ul
-    else:
-        print('set filespath to folder with clean excel files before running this function')
+    files,_=get_files_info(filespath) #function call to return all file directories
+    
+    aligned_to_ul=[] #Initializing an empty list to hold realigned position matrix 
+    for file in files:
+        position=pd.read_excel(file) #reading position file into a pandas dataframe
+        animal_pos=position.iloc[:,:2] #extracting posx and y which corresponds to cols 1&2
 
-
+        object_loc=file.split('\\')[-1].split('_')[2] #Extracting object location from string
+        
+        #flip position matrix depending on object loc to ensure that all objects locs across animals are aligned to upper left quadrant 
+        if object_loc=='ur': 
+            ur_matrix=occu_matrix(animal_pos) #fxn call to compute occupancy matrix 
+            flipped_from_ur=np.flip(ur_matrix,axis=1) #flip on second axis
+            aligned_to_ul.append(flipped_from_ur) 
+        elif object_loc=='bl':
+            bl_matrix=occu_matrix(animal_pos)
+            flipped_from_bl=np.flip(bl_matrix,axis=0)
+            aligned_to_ul.append(flipped_from_bl)
+        elif object_loc=='br':
+            br_matrix=occu_matrix(animal_pos)
+            flipped_from_br=np.flip(br_matrix,axis=0) #flip on first axis
+            flipped_from_br=np.flip(flipped_from_br,axis=1) #flip on second axis
+            aligned_to_ul.append(flipped_from_br) #append the after second flip
+        else:
+            ref_matrix=occu_matrix(animal_pos) #ul: arbitrarily pre-determined as reference object location for realignment 
+            aligned_to_ul.append(ref_matrix)
+            
+    #### ALIGNED HEATMAP PLOT #########
+    if show_fig:
+        #initializing matrix of zeros with the shape of the dimensions of a single position matrix to hold the sum of all matrices across animals
+        data=np.zeros(np.shape(aligned_to_ul)[1:3])
+        for i in range(len(aligned_to_ul)):
+            data+=aligned_to_ul[i]     #adds corresponding cells for all pos matrix across animals
+        data=gaussian_filter(data,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
+        fig,ax=plt.subplots()
+        plt.title('Object Aligned to Upper Left Quadrant (N='+str(len(aligned_to_ul))+')') # the str attachement extracts the number of animals in the list
+        heatmap=plt.imshow(data, cmap='jet', interpolation='bilinear') 
+        ax.set_yticks([])
+        ax.set_xticks([])
+        cbar=fig.colorbar(heatmap,orientation='vertical') #color bar legend
+        cbar.ax.get_xticks()
+        cbar.set_ticks([])
+        cbar.ax.set_ylabel('Occupancy')
+        min_=plt.text(11,9.5,'min')
+        max_=plt.text(11,-0.3,'max')
+        fig.show()
+       
+    return aligned_to_ul
+    
+    
 def collect_samples(aligned_data):
     """
     Args: 
@@ -428,7 +437,6 @@ def collect_samples(aligned_data):
             for j in range(bins):
                 cells_val_pair[i][j].append(occupancy[1][i][j])
     return cells_val_pair
-
 
 
 def ranksum_pval_matrix(cond1_samples,cond2_samples):
@@ -471,31 +479,37 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
     cbar.ax.invert_yaxis()
     plt.show()
     return result
-
 #################################################################################################  
 ######################### TEST DATA #############################################################
 #################################################################################################
-filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master'
 
-dat=object_bouts(filespath,60)
 
-raw_filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master\dirty' #filepath
-clean_filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master\dirty\cl' #filepath
-clean_pos_data(raw_filespath,clean_filespath)
+#cond1
+filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond1(non-mouse)'
+clean_pos_data(filespath, thres=.99)
+quad_analysis(filespath)
+occu_plots(filespath)
+aligned_data_cond1=align_allMats(filespath, show_fig=True)
+cond1_samples=collect_samples(aligned_data_cond1)
 
-filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master'
+#object_bouts
+obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' 
+object_bouts(obj_bouts_path,60)
 
+#con2
+filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond2(mouse)'
+clean_pos_data(filespath, thres=.99)
 quad_analysis(filespath) 
-
-#collect the realigned occupancy matrices generated in for two conditions
-cond1_filespath= r'C:\Users\kasum\Downloads\Trenholm_lab-master' #example path to condtion1  .xlsx files
-cond1 = align_allMats(cond1_filespath)
-cond2_filespath=r'C:\Users\kasum\Downloads\Trenholm_lab-master' #example path to condtion2  .xlsx files
-cond2 = align_allMats(cond2_filespath)
+occu_plots(filespath)
+aligned_data_cond2=align_allMats(filespath, show_fig=True)
+cond2_samples=collect_samples(aligned_data_cond2)
 
 
-cond1_samples = collect_samples(cond1)
-cond2_samples = collect_samples(cond2)    
+#cond1 vs cond2
+result=ranksum_pval_matrix(cond1_samples,cond2_samples)
+
+
+
+  
 
 ###occu plots= we can use gridspec matplot lib to make it easy
-
