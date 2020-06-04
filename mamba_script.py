@@ -122,15 +122,15 @@ def quad_analysis(filespath,framerate=30):
     """    
     filespath=filespath+'\cleanData' #change directory to clean folder
     
-    files,ids=get_files_info(filespath) #calls external fxn to get files info
+    files,_=get_files_info(filespath) #calls external fxn to get files info
 
     #creating pandas dataframe to hold data
-    quad_coverage=pd.DataFrame(index=ids,columns=['cond','sex','object_loc','ul_dist', 'ul_dur',\
+    quad_coverage=pd.DataFrame(columns=['cond','sex','object_loc','ul_dist', 'ul_dur',\
                        'ul_vel','ur_dist', 'ur_dur','ur_vel', \
                               'bl_dist', 'bl_dur','bl_vel','br_dist', 'br_dur','br_vel']) 
     
     for idx,file in enumerate(files): 
-        mouse_id=int(file.split('\\')[-1].split('_')[0])
+        mouse_id=file.split('\\')[-1].split('_')[0]
         sex=file.split('\\')[-1].split('_')[1]
         obj_loc=file.split('\\')[-1].split('_')[2]
         condition=file.split('\\')[-1].split('_')[3]
@@ -180,7 +180,7 @@ def quad_analysis(filespath,framerate=30):
             
             computed_vals.extend([tot_dist,tot_time,vel]) #populating computed_vals for each iteration
             
-        quad_coverage.iloc[mouse_id,3:]=computed_vals #assigning computed_vals to current mouse_id and respective cols in dataframe on line44
+        quad_coverage.loc[mouse_id,(quad_coverage.columns[3:])]= computed_vals #assigning computed_vals to current mouse_id and respective cols in dataframe on line44
         
     quad_coverage.to_csv(filespath+'\Data_quadrants.csv', index_label='mouse_id') #write data to filespath as csv
     
@@ -317,7 +317,7 @@ def occu_plots(filespath):
         xpos=animal_pos.iloc[:,0]
         ypos=animal_pos.iloc[:,1]
         
-        plt.subplot(rows,(len(files)//2)+1,i+1) 
+        plt.subplot(rows,(len(files)//2)+2,i+1) 
         plt.plot(xpos,ypos)
         plt.gca().set_yticks([])
         plt.gca().set_xticks([])
@@ -329,7 +329,7 @@ def occu_plots(filespath):
     fig1,ax1=plt.subplots()
     for i,file in enumerate(files):
         mouse_info=file.split('\\')[-1].split('.')[0] 
-        plt.subplot(rows,(len(files)//2)+1,i+1)
+        plt.subplot(rows,(len(files)//2)+2,i+1)
         position=pd.read_excel(file) 
         animal_pos=position.iloc[:,:2] 
         occu=occu_matrix(animal_pos)  #fxn call to generate occupancy matrix
@@ -482,22 +482,23 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 #################################################################################################  
 ######################### TEST DATA #############################################################
 #################################################################################################
-
+import sys
+sys.exit()  #Allows you to run all functions before running test 
 
 #cond1
-filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond1(non-mouse)'
-clean_pos_data(filespath, thres=.90)
+filespath=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\cond1(non-mouse)'
+clean_pos_data(filespath, thres=.9)
 quad_analysis(filespath)
 occu_plots(filespath)
 aligned_data_cond1=align_allMats(filespath, show_fig=True)
 cond1_samples=collect_samples(aligned_data_cond1)
 
 #object_bouts
-obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' #it is is the only file with the required data
+obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\object_boutsFile' #it is is the only file with the required data
 object_bouts(obj_bouts_path,60)
 
 #con2
-filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\cond2(mouse)'
+filespath=r'C:\Users\kasum\Desktop\COMP598\COMP598_data_files\cond2(mouse)'
 clean_pos_data(filespath, thres=1)
 quad_analysis(filespath) 
 occu_plots(filespath)
