@@ -485,6 +485,8 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 import sys
 sys.exit()  #Allows you to break after loading the fxns before running test 
 
+##### NOTE: Changing file dir format may cause errors
+
 #cond1
 filespath=r'C:\Users\kasum\Documents\TEST_DATA\con1(non-mouse)'
 clean_pos_data(filespath, thres=.9)
