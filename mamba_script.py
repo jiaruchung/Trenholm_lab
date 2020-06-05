@@ -482,8 +482,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 #################################################################################################  
 ######################### TEST DATA #############################################################
 #################################################################################################
-import sys
-sys.exit()  #Allows you to break after loading the fxns before running test 
+ #Allows you to break after loading the fxns before running test 
 
 ##### NOTE: Changing file dir format may cause errors
 
