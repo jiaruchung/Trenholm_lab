@@ -462,7 +462,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
     
     #heatmap showing p-value in each bin as a result of rank_sum test between two conditions
     cmap = sns.cubehelix_palette(50, hue=0.05, rot=0, light=0.9, dark=0, as_cmap=True, reverse=True)
-    sns.set(font_scale=3)
+    sns.set(font_scale=1)
     fig, ax = plt.subplots(1)
     pval_heatmap2 = sns.heatmap(result, 
                                vmin=0.001, 
@@ -471,7 +471,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
                                ax=ax,
                                xticklabels = False, 
                                yticklabels = False,
-                               annot_kws={"size": 14},
+                               annot_kws={"size": 13},
                                cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})
     cbar = pval_heatmap2.collections[0].colorbar
     cbar.set_ticks([0.05, 0.01, 0.001, 0])
@@ -483,7 +483,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 ######################### TEST DATA #############################################################
 #################################################################################################
 import sys
-sys.exit()  #Allows you to run all functions before running test 
+sys.exit()  #Allows you to break after loading the fxns before running test 
 
 #cond1
 filespath=r'C:\Users\kasum\Documents\TEST_DATA\con1(non-mouse)'
