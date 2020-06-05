@@ -53,7 +53,7 @@ def clean_pos_data(filespath,thres=.90):
     for idx, file in enumerate(files):
         file_info=str('\\')+ file.split('\\')[-1]
         position_data=pd.read_excel(file) #read_excel file with position data
-        animal_pos=position_data.loc[:,('X','Y')].dropna
+        animal_pos=position_data.loc[:,('X','Y')]
         
         #computing change in x and y
         dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); 
@@ -268,7 +268,7 @@ def object_bouts(filespath, bout_distance=50, sample_fig=True, framerate=30):
             ax.legend([path,obj,bout],['path','object','bout'],loc='best')
             ax.set_yticks([]) #removes y ticks from plot
             ax.set_xticks([]) #removes x ticks from plot
-            ax.set_title('Example_fig: mouse_'+str(mouse_id))
+            ax.set_title('Example_fig: mouse_'+str(mouse_id)+' ('+str(bout_distance)+'mm_bout)')
             fig.show()
     
     bouts_data.to_csv(filespath+'\Data_bouts.csv', index_label='mouse_id') #write output to csv in filepaths dir 
@@ -316,7 +316,7 @@ def occu_plots(filespath):
         xpos=animal_pos.iloc[:,0]
         ypos=animal_pos.iloc[:,1]
         
-        plt.subplot(rows,(len(files)//2)+1,i+1) 
+        plt.subplot(rows,(len(files)//2)+2,i+1) 
         plt.plot(xpos,ypos)
         plt.gca().set_yticks([])
         plt.gca().set_xticks([])
@@ -328,7 +328,7 @@ def occu_plots(filespath):
     fig1,ax1=plt.subplots()
     for i,file in enumerate(files):
         mouse_id=file.split('\\')[-1].split('.')[0]
-        plt.subplot(rows,(len(files)//2)+1,i+1)
+        plt.subplot(rows,(len(files)//2)+2,i+1)
         position=pd.read_excel(file) 
         animal_pos=position.iloc[:,:2] 
         occu=occu_matrix(animal_pos)  #fxn call
@@ -486,7 +486,7 @@ import sys
 sys.exit()  #Allows you to run all functions before running test 
 
 #cond1
-filespath=r'C:\Users\kasum\Documents\Trenholm_lab\COMP598_data_files\con1(non-mouse)'
+filespath=r'C:\Users\kasum\Documents\TEST_DATA\con1(non-mouse)'
 clean_pos_data(filespath, thres=.9)
 quad_analysis(filespath)
 occu_plots(filespath)
@@ -494,11 +494,11 @@ aligned_data_cond1=align_allMats(filespath, show_fig=True)
 cond1_samples=collect_samples(aligned_data_cond1)
 
 #object_bouts
-obj_bouts_path=r'C:\Users\kasum\Desktop\COMP598\data_files\object_boutsFile' #it is is the only file with the required data
-object_bouts(obj_bouts_path,60)
+obj_bouts_path=r'C:\Users\kasum\Documents\TEST_DATA\object_boutsFile' #it is is the only file with the required data
+object_bouts(obj_bouts_path,80)
 
 #con2
-filespath=r'C:\Users\kasum\Desktop\COMP598\data_files\con2(mouse)'
+filespath=r'C:\Users\kasum\Documents\TEST_DATA\con2(mouse)'
 clean_pos_data(filespath, thres=1)
 quad_analysis(filespath) 
 occu_plots(filespath)
