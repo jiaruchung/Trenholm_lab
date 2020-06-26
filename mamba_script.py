@@ -54,6 +54,7 @@ def clean_pos_data(filespath,thres=.90):
         file_info=str('\\')+ file.split('\\')[-1]
         position_data=pd.read_excel(file) #read_excel file with position data
         animal_pos=position_data.loc[:,('X','Y')]
+
         
         #computing change in x and y
         dx = np.array(animal_pos.iloc[:,0][1:])-np.array(animal_pos.iloc[:,0][:-1]); 
@@ -147,6 +148,7 @@ def quad_analysis(filespath,framerate=30):
         #converting dataframes into np.arrays for pos x and y 
         pos_x=np.array(animal_pos.iloc[:,0])
         pos_y=np.array(animal_pos.iloc[:,1])
+#        pos_y = np.flip(pos_y, axis =0)
         
         #Defining center of the environment
         #Note: you may have to manually define the center of your environment for data with irregular path plots
@@ -306,8 +308,15 @@ def occu_plots(filespath):
     filespath=filespath+'\cleanData' #change directory to clean folder
 
     files,ids=get_files_info(filespath)
+    
+    '''
+    TO DO:
+        make both plots dependent on each other
+        create an intermediate fxn that inverst the plot to align with the ground truth
+        feed that output to plot1 and to occ_mat to create plot2
+    '''
      #PLOT1: Trajectory line plot
-    fig,ax=plt.subplots()
+    fig,ax=plt.subplots()  
     rows=len(files)//2
     for i,file in enumerate(files):
         mouse_id=file.split('\\')[-1].split('.')[0]
@@ -318,6 +327,7 @@ def occu_plots(filespath):
         
         plt.subplot(rows,(len(files)//2)+2,i+1) 
         plt.plot(xpos,ypos)
+        plt.gca().invert_yaxis() 
         plt.gca().set_yticks([])
         plt.gca().set_xticks([])
         plt.title('Mouse'+mouse_id) 
@@ -325,26 +335,28 @@ def occu_plots(filespath):
         
         
     #PLOT2: Trajecory heatmap plot
-    fig1,ax1=plt.subplots()
+    fig1,ax1=plt.subplots() 
     for i,file in enumerate(files):
         mouse_id=file.split('\\')[-1].split('.')[0]
         plt.subplot(rows,(len(files)//2)+2,i+1)
         position=pd.read_excel(file) 
-        animal_pos=position.iloc[:,:2] 
+        animal_pos = position.iloc[:,:2]
         occu=occu_matrix(animal_pos)  #fxn call
+
         occu=gaussian_filter(occu,sigma=0.7)  #using a guassian filter to smoothen occupancy matrix
-        
         plt.title('Mouse'+mouse_id) # the str attachement extracts the number of animals in the list
         heatmap=plt.imshow(occu, cmap='jet', interpolation='bilinear') 
     
+        plt.gca().invert_yaxis()
         plt.gca().set_yticks([])
-        plt.gca().set_xticks([])
+        plt.gca().set_xticks([]) 
         cbar=fig1.colorbar(heatmap,orientation='vertical') #color bar legend
         cbar.ax.get_xticks()
         cbar.set_ticks([])
         cbar.ax.set_ylabel('Occupancy')
         min_=plt.text(11,9.5,'min')
         max_=plt.text(11,-0.3,'max')
+        
         fig1.show()
 
     return fig,fig1
@@ -385,9 +397,9 @@ def align_allMats(filespath, show_fig=True):
         elif object_loc=='br':
             br_matrix=occu_matrix(animal_pos)
             flipped_from_br=np.flip(br_matrix,axis=0) #flip on first axis
-            flipped_from_br=np.flip(flipped_from_br,axis=1) #flip on second axis
-            aligned_to_ul.append(flipped_from_br) #append the after second flip
-        else:
+            flipped_from_br2=np.flip(flipped_from_br,axis=1) #flip on second axis
+            aligned_to_ul.append(flipped_from_br2) #append the after second flip
+        elif object_loc=='ul':
             ref_matrix=occu_matrix(animal_pos) #ul: arbitrarily pre-determined as reference object location for realignment 
             aligned_to_ul.append(ref_matrix)
             
@@ -473,6 +485,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
                                yticklabels = False,
                                annot_kws={"size": 13},
                                cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})
+    pval_heatmap2.invert_yaxis()
     cbar = pval_heatmap2.collections[0].colorbar
     cbar.set_ticks([0.05, 0.01, 0.001, 0])
     cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
@@ -487,7 +500,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
 ##### NOTE: Changing file dir format may cause errors
 
 #cond1
-filespath=r'C:\Users\kasum\Documents\TEST_DATA\con1(non-mouse)'
+filespath=r'C:\Users\jc552\Desktop\Trenholm_lab-master\Trenholm_lab-master\TEST_DATA\con1(non-mouse)'
 clean_pos_data(filespath, thres=.9)
 quad_analysis(filespath)
 occu_plots(filespath)
@@ -495,11 +508,11 @@ aligned_data_cond1=align_allMats(filespath, show_fig=True)
 cond1_samples=collect_samples(aligned_data_cond1)
 
 #object_bouts
-obj_bouts_path=r'C:\Users\kasum\Documents\TEST_DATA\object_boutsFile' #it is is the only file with the required data
+obj_bouts_path=r'C:\Users\jc552\Desktop\Trenholm_lab-master\Trenholm_lab-master\TEST_DATA\object_boutsFile' #it is is the only file with the required data
 object_bouts(obj_bouts_path,80)
 
 #con2
-filespath=r'C:\Users\kasum\Documents\TEST_DATA\con2(mouse)'
+filespath=r'C:\Users\jc552\Desktop\Trenholm_lab-master\Trenholm_lab-master\TEST_DATA\con2(mouse)'
 clean_pos_data(filespath, thres=1)
 quad_analysis(filespath) 
 occu_plots(filespath)
