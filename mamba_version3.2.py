@@ -631,21 +631,41 @@ pval_heatmap3 = sns.heatmap(result_change,
                                yticklabels = False,
                                cbar=False)    
     
-    
-cmap = sns.cubehelix_palette(50, hue=0.05, rot=0, light=0.9, dark=0, as_cmap=True, reverse=True)
+
+reds = sns.color_palette("Reds", 10)
 sns.set(font_scale=1)
 fig, ax = plt.subplots(1)
-pval_heatmap4 = sns.heatmap(pval_decrease.astype('float'), 
+pval_heatmap3 = sns.heatmap(pval_increase.astype('float'), 
                                vmin=0.001, 
                                vmax=0.05, 
-                               cmap=cmap,
+                               cmap=reds,
                                ax=ax,
                                xticklabels = False, 
                                yticklabels = False,
-                               cbar=False)    
-      
+                               cbar=True,
+                               annot_kws={"size": 13},
+                               cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})  
+cbar = pval_heatmap3.collections[0].colorbar
+cbar.set_ticks([0.05, 0.01, 0.001, 0])
+cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
+cbar.ax.invert_yaxis()
+plt.show()
     
-    
+blues = sns.color_palette("Blues", 10)
+sns.set(font_scale=1)
+#fig, ax = plt.subplots(1)
+pval_heatmap3 = sns.heatmap(pval_decrease.astype('float'), 
+                               vmin=0.001, 
+                               vmax=0.05, 
+                               cmap=blues,
+                               ax=ax,
+                               xticklabels = False, 
+                               yticklabels = False,
+                               cbar=True) 
+cbar = pval_heatmap3.collections[0].colorbar
+cbar.set_ticks([0.05, 0.01, 0.001, 0])
+cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
+cbar.ax.invert_yaxis()
+plt.show()
 
 
- 
