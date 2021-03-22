@@ -618,25 +618,12 @@ plt.figure();plt.imshow(pval_increase)
 sys.exit()
 
 
-diverging_colors = sns.color_palette("RdBu", 10)
-sns.palplot(diverging_colors)
-sns.set(font_scale=1)
-fig, ax = plt.subplots(1)
-pval_heatmap3 = sns.heatmap(result_change, 
-                               vmin=0.001, 
-                               vmax=0.05, 
-                               cmap=diverging_colors,
-                               ax=ax,
-                               xticklabels = False, 
-                               yticklabels = False,
-                               cbar=False)    
-    
 
-reds = sns.color_palette("Reds", 10)
+reds = sns.color_palette("RdBu", 10)  
 sns.set(font_scale=1)
-fig, ax = plt.subplots(1)
+fig, ax = plt.subplots()
 pval_heatmap3 = sns.heatmap(pval_increase.astype('float'), 
-                               vmin=0.001, 
+                               vmin=0.0005, 
                                vmax=0.05, 
                                cmap=reds,
                                ax=ax,
@@ -646,26 +633,47 @@ pval_heatmap3 = sns.heatmap(pval_increase.astype('float'),
                                annot_kws={"size": 13},
                                cbar_kws={'label': 'P-value for the Wilcoxon rank sum statistic'})  
 cbar = pval_heatmap3.collections[0].colorbar
-cbar.set_ticks([0.05, 0.01, 0.001, 0])
-cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
+cbar.set_ticks([0.05, 0.0211, 0.0005])
+cbar.set_ticklabels(['<=0.001', '0.05', '<=0.001'])
 cbar.ax.invert_yaxis()
 plt.show()
-    
-blues = sns.color_palette("Blues", 10)
+plt.savefig('two_directions_p_value_annotated5.eps',dpi=300)
+
+blues = sns.color_palette("Blues_r", 10)
 sns.set(font_scale=1)
-#fig, ax = plt.subplots(1)
+#fig, ax2 = plt.subplots()
 pval_heatmap3 = sns.heatmap(pval_decrease.astype('float'), 
-                               vmin=0.001, 
+                               vmin=0.0005, 
                                vmax=0.05, 
                                cmap=blues,
                                ax=ax,
                                xticklabels = False, 
                                yticklabels = False,
-                               cbar=True) 
-cbar = pval_heatmap3.collections[0].colorbar
-cbar.set_ticks([0.05, 0.01, 0.001, 0])
-cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001', '0'])
-cbar.ax.invert_yaxis()
+                               cbar=False) 
+#cbar = pval_heatmap3.collections[0].colorbar
+#cbar.set_ticks([0.05, 0.0211, 0.0005])
+#cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001'])
+#cbar.ax.invert_yaxis()
 plt.show()
+plt.savefig('two_directions_p_value_annotated5.eps',dpi=300)
 
+
+a=[]
+for i in range(10):
+  for j in range(10):
+    if np.isnan(pval_decrease.iloc[i,j]):
+      pass
+    else:
+      a.append(pval_decrease.iloc[i,j])
+  
+a1=[]
+for i in range(10):
+  for j in range(10):
+    if np.isnan(pval_increase.iloc[i,j]):
+      pass
+    else:
+      a1.append(pval_increase.iloc[i,j])
+  
+min(a1)
+max(a1)
 
