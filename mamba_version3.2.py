@@ -313,7 +313,7 @@ def object_bouts(filespath, bout_distance=50, sample_fig=True, framerate=30):
 
 
 
-def occu_matrix(animal_pos,bins=10):
+def occu_matrix(animal_pos,bins=5):
     """
     Args: 
         animal_pos: pandas dataframe animal pos X and Y in cols 1 and 2 in the folder of two conditions 
@@ -488,6 +488,11 @@ def collect_samples(aligned_data):
 
 
 
+
+
+
+
+
 def ranksum_pval_matrix(cond1_samples,cond2_samples):
     """
     Args:
@@ -498,7 +503,7 @@ def ranksum_pval_matrix(cond1_samples,cond2_samples):
     Return:
         result: matrix of pvals from computed ranksum for cond1_samples vs cond2_samples            
     """
-    bins=10
+    bins=5
     ranksum_test_on_cells = []
     for i in range(bins):
         ranksum_test_on_cells.append([])
@@ -561,34 +566,23 @@ cond2_samples=collect_samples(aligned_data_cond2)
 
 
 """making p-value plots that can distinguish p-value directions"""
-
 #Average dataframes for each condition 
-all_dat_con1={}
-for mouse_id in range(len(cond1_samples)):
-  dframe_con1=pd.DataFrame(index=np.arange(10), columns=np.arange(10))
-  for i in range(len(cond1_samples)):
-    dframe_con1.iloc[i,:]=cond1_samples[mouse_id][i]
-  all_dat_con1[mouse_id]=dframe_con1
 
-a=all_dat_con1[0]
-for i in range(len(cond1_samples)-1):
-  a=a+all_dat_con1[i+1]
-  average_con1 = a/len(cond1_samples)
-  print(average_con1)
-  
+
+all_dat_con1={}
+a=aligned_data_cond1[0]
+for i in range(len(aligned_data_cond1)-1):
+  a=a+aligned_data_cond1[i+1]
+average_con1 = a/len(aligned_data_cond1)
+print(average_con1)
+
 
 all_dat_con2={}
-for mouse_id in range(len(cond2_samples)):
-  dframe_con2=pd.DataFrame(index=np.arange(10), columns=np.arange(10))
-  for i in range(len(cond2_samples)):
-    dframe_con2.iloc[i,:]=cond2_samples[mouse_id][i]
-  all_dat_con2[mouse_id]=dframe_con2
-
-b=all_dat_con2[0]
-for i in range(len(cond2_samples)-1):
-  b=b+all_dat_con2[i+1]
-  average_con2 = b/len(cond2_samples)
-  print(average_con2)
+b=aligned_data_cond2[0]
+for i in range(len(aligned_data_cond2)-1):
+  b=b+aligned_data_cond2[i+1]
+average_con2 = b/len(aligned_data_cond2)
+print(average_con2)
 
 
 substract = average_con1-average_con2
@@ -604,8 +598,8 @@ negative_values_df = pd.DataFrame(negative_values)
     
     
 result=ranksum_pval_matrix(cond1_samples,cond2_samples)
-result_df=pd.DataFrame(index=np.arange(10), columns=np.arange(10))
-for i in range(10):
+result_df=pd.DataFrame(index=np.arange(5), columns=np.arange(5))
+for i in range(5):
   result_df.iloc[i,:]=result[i]
 
 result_change=substract[result_df<=0.05]
@@ -655,7 +649,7 @@ pval_heatmap3 = sns.heatmap(pval_decrease.astype('float'),
 #cbar.set_ticklabels(['>=0.05', '0.01', '<=0.001'])
 #cbar.ax.invert_yaxis()
 plt.show()
-plt.savefig('two_directions_p_value_annotated5.eps',dpi=300)
+#plt.savefig('two_directions_p_value_annotated5.eps',dpi=300)
 
 
 a=[]
