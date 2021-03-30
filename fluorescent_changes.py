@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 25 09:43:38 2021
+Created on Mon Mar 29 22:20:28 2021
 
-@author: labuser
+@author: jc552
 """
 
 import numpy as np
@@ -13,10 +13,9 @@ import skvideo.io
 import skimage.transform as transform
 import argparse
 from scipy.io import loadmat
-import cv2
 from tifffile import imsave
 
-fn1 = r"F:\calcium_imaging\Edith\widefield_over_skull\retinotopic_mapping\EC018\2021-03-03\wdf\wdf\wdf_000_a11.mj2"
+fn1 = r"D:\calcium_imaging\Edith\widefield_over_skull\retinotopic_mapping\EC018\2021-03-03\wdf\wdf\wdf_000_a11.mj2"
 
 if __name__ == '__main__':
     ### Parser ###
@@ -59,14 +58,17 @@ def sbx_get_ttlevents(fn):
 
   
   
+
   start = 0
   ttl = 177
   trial =[]
-  for i in range(10):
+  for i in range(10):    
     trial.append(ttl*i+start)
   print(trial)
-  matrix = sum(trial)/10
-  print(matrix)
+  
+  for i in range(10):
+      x = x + vid[trial[0+i]]
+      return x/10
 
 
 
